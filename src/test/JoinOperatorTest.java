@@ -14,9 +14,20 @@ import operators.ScanOperator;
 import operators.SelectOperator;
 import operators.SortOperator;
 
-
+/**
+ * This class provides function:
+ * Testing for methods in JoinOperator
+ * 
+ * @author Ruoxuan Xu
+ *
+ */
 class JoinOperatorTest {
 	
+	/**
+	 * test method getNextTuple()
+	 * 
+	 * @throws JSQLParserException
+	 */
 	@Test
 	public void getNextTupleTest() throws JSQLParserException {
 

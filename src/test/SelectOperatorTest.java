@@ -12,7 +12,13 @@ import operators.ProjectOperator;
 import operators.ScanOperator;
 import operators.SelectOperator;
 
-
+/**
+ * This class provides function:
+ * Testing for methods in SelectOperator
+ * 
+ * @author Ruoxun Xu
+ *
+ */
 class SelectOperatorTest {
 	@Test
 	public void getNextTupleTest() throws JSQLParserException {
@@ -29,11 +35,11 @@ class SelectOperatorTest {
 					parse(new StringReader(statement))).getSelectBody();
 			String table_info = ps.getFromItem().toString();
 			ScanOperator scanOp = new ScanOperator(table_info);
-//			SelectOperator selectOp = new SelectOperator(ps,scanOp);
-//			selectOp.dump();
-//
-//			System.out.println("*******end*********");
-//			System.out.println();
+			SelectOperator selectOp = new SelectOperator(ps,scanOp);
+			selectOp.dump();
+
+			System.out.println("*******end*********");
+			System.out.println();
 		}
 
 	}

@@ -15,9 +15,17 @@ import org.junit.jupiter.api.Test;
 import java.io.StringReader;
 import java.util.LinkedList;
 
+/**
+ * This class provides function:
+ * Testing for methods in SelectOperator
+ * 
+ * @author Ruoxun Xu
+ *
+ */
 class ScanOperatorTest {
 
-	// Test for Constructor: ScanOperator(String tableInfo)
+
+	/**Test for Constructor: ScanOperator(String tableInfo)*/
 	@Test 
 	void testForAlias() {
 		String tableInfo = "Sailors S1";
@@ -36,7 +44,7 @@ class ScanOperatorTest {
 		assertEquals(sOp.getAttributes().size(), schema.size());		
 	}
 	
-	// Test for Constructor: ScanOperator(String tableName, String tableAliase)
+	/**Test for Constructor: ScanOperator(String tableName, String tableAliase)*/
 	@Test
 	void testForExplicitAlias() {
 		String tableName = "Reserves";
@@ -53,7 +61,7 @@ class ScanOperatorTest {
 		assertEquals(sOp.getAttributes().size(), schema.size());
 	}
 	
-	// Test for getNextTuple() and reset()
+	/**Test for getNextTuple() and reset()*/
 	@Test
 	void testForTuple() {
 		ScanOperator sOp = new ScanOperator("Sailors S");
@@ -83,7 +91,7 @@ class ScanOperatorTest {
 		assertEquals(sOp.getNextTuple().getTupleData(), "1 200 50 ");		
 	}
 	
-	// Test SQL
+	/** Test SQL*/
 	@Test
 	void testForSQL() {
 		String[] statements = new String[5];	
@@ -104,11 +112,9 @@ class ScanOperatorTest {
 		
 				String table_info = ps.getFromItem().toString();
 				ScanOperator scanOp = new ScanOperator(table_info);
-//				SelectOperator selectOp = new SelectOperator(ps,scanOp);
-//				ProjectOperator projectOp = new ProjectOperator(ps, selectOp);
-//				projectOp.dump();
-//				System.out.println("*******end*********");
-//				System.out.println();
+				scanOp.dump();
+				System.out.println("*******end*********");
+				System.out.println();
 			}
 		} catch (JSQLParserException e) {
 			e.printStackTrace();

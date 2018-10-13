@@ -14,7 +14,7 @@ import operators.SelectOperator;
  * This class provides function:
  * Testing for methods in ProjectOperator
  * 
- * @author yanxiaoxing
+ * @author Xiaoxing Yan
  *
  */
 

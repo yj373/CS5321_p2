@@ -4,16 +4,31 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+/**
+ * This class provides function:
+ * construct Tuple class to store information of every tuple
+ * 
+ * @author Yixuan Jiang
+ *
+ */
+
 public class Tuple {
-	//Store the data of each tuple
+	/*Store the data of each tuple*/
 	private long[] data;
 	private Map<String, Integer> schema;
 	
-	//Constructors
+	/**
+	 * default constructor
+	 */
 	public Tuple() {
 		
 	}
-	//Construct a tuple of a single table
+	
+	/** 
+	 * This method is a constructor which is to
+	 * construct a tuple of a single table
+	 * 
+	 */
 	public Tuple(String str, String table_aliase, LinkedList<String> attributes) {
 		String[] temp = str.split(",");
 		data = new long[temp.length];
@@ -29,7 +44,12 @@ public class Tuple {
 		}
 	}
 	
-	// Construct a tuple from previous tuple
+	
+	/** 
+	 * This method is a constructor which is to
+	 * construct a tuple from previous tuple
+	 * 
+	 */
 	public Tuple(long[] data, Map<String, Integer> schema) {
 		this.data = data;
 		this.schema = schema;
@@ -43,7 +63,9 @@ public class Tuple {
 		}
 	}
 	
-	//Getters
+	/**
+	 * this method is to get data from Tuple
+	 */
 	public String getTupleData() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i<data.length; i++) {
@@ -52,14 +74,26 @@ public class Tuple {
 		}
 		return sb.toString();
 	}
+	
+	
+	/**
+	 * get data
+	 * @return array
+	 */
 	public long[] getData() {
 		return data;
 	}
 	
+	/**
+	 * get schema
+	 */
 	public Map<String, Integer> getSchema() {
 		return schema;
 	}
 	
+	/**
+	 * get size
+	 */
 	public int getSize() {
 		if (data == null) {
 			return 0;
@@ -67,6 +101,11 @@ public class Tuple {
 			return data.length;
 		}
 	}
+	
+	/**
+	 * print data in Tuple
+	 */
+	
 	public void printData() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i<data.length; i++) {

@@ -8,8 +8,19 @@ import net.sf.jsqlparser.statement.select.Select;
 import operators.Operator;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
+/**
+ * This class provides function:
+ * 
+ * for future optimization
+ * 
+ * @author Yixuan Jiang
+ *
+ */
 public class Planner {
 	
+	/**
+	 * to parse quires
+	 */
 	public void parse_queries() {
 		try {
 			CCJSqlParser parser = new CCJSqlParser(new FileReader(Dynamic_properties.queryPath));
@@ -26,6 +37,13 @@ public class Planner {
 			e.printStackTrace();
 		}
 	}
+	
+	/**
+	 * generate query plan
+	 * 
+	 * @param ps
+	 * @return operator root node
+	 */
 	public Operator generatePlan(PlainSelect ps) {
 		return null;
 	}

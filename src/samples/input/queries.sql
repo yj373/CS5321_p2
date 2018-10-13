@@ -1,4 +1,3 @@
-SELECT DISTINCT S.*, R.G, B.F FROM Sailors AS S, Reserves AS R, Boats AS B WHERE S.A = R.G AND R.G = B.F ORDER BY S.B;
 SELECT DISTINCT * FROM Sailors AS S, Reserves AS R, Boats AS B WHERE S.A = R.G AND R.G = B.F;
 SELECT DISTINCT * FROM Sailors AS S, Reserves AS R, Boats AS B WHERE S.A = R.G AND R.G = B.F ORDER BY S.B;
 SELECT * FROM Sailors S, Reserves R WHERE S.A = R.G;
@@ -16,7 +15,3 @@ SELECT * FROM Sailors;
 SELECT Sailors.A FROM Sailors;
 SELECT S.A FROM Sailors S;
 SELECT * FROM Sailors S WHERE S.A < 3;
-SELECT * FROM Sailors, Reserves WHERE Sailors.A = Reserves.G;
-
-
-

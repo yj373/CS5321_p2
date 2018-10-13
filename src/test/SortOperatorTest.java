@@ -17,7 +17,7 @@ import operators.SortOperator;
  * This class provides function:
  * Testing for methods in SortOperator
  * 
- * @author yanxiaoxing
+ * @author Xiaoxing Yan
  *
  */
 class SortOperatorTest {

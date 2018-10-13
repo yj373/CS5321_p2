@@ -10,18 +10,18 @@ import net.sf.jsqlparser.statement.*;
 import operators.Operator;
 import visitors.BasicVisitor;
 
+
 /**
  * This class provides function:
  * 
  * Interpret query to query plan
  * evaluate query plan and generate output files
  * 
- * @author yanxiaoxing
+ * @author Xiaoxing Yan
  *
  */
-
 public class SQLInterpreter {
-	
+
 	/**
 	 * Set paths according to input parameters
 	 * 
@@ -29,10 +29,10 @@ public class SQLInterpreter {
 	 * @param args[0]   absolute path of input file
 	 * @param args[1]   absolute path of output file
 	 */
-
 	public static void init (String[] args) {
 		Dynamic_properties.setPath(args[0], args[1]);
 	}
+
 
 	/**
 	 * Build query tree for every query
@@ -73,6 +73,7 @@ public class SQLInterpreter {
 	 * @param index index of query
 	 * @param root  root node of query tree
 	 */
+
 	public static void writeToFile (int index, Operator root) {
 		root.dump(index);
 		System.out.println("end");

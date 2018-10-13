@@ -9,7 +9,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
  * This class provides function:
  * Eliminate duplication in output tuples
  * 
- * @author yanxiaoxing
+ * @author Xiaoxing Yan
  *
  */
 

@@ -15,7 +15,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
  * Choose required attributes according 
  * to the SELECT requirement
  * 
- * @author yanxiaoxing
+ * @author Xiaoxing Yan
  */
 public class ProjectOperator extends Operator{
 	

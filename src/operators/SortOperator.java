@@ -16,7 +16,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
  * This class provides function:
  * Sort Tuples according to required sequence
  * 
- * @author yanxiaoxing
+ * @author Xiaoxing Yan
  *
  */
 public class SortOperator extends Operator{

@@ -45,6 +45,14 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * this class provides function:
+ * Deal with expression with single table
+ * 
+ * @author Yixuan Jiang
+ *
+ */
+
 //Deal with expression with single table
 public class BasicExpressionVisitor implements ExpressionVisitor{
 	
@@ -53,44 +61,50 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 	private LinkedList<Long> data;
 	
 	
-	//Constructors
+	/** 
+	 * This method is a constructor which is to
+	 * initialize related fields.
+	 * 
+	 * @param tuple   pass in tuple
+	 * 
+	 */
 	public BasicExpressionVisitor(Tuple tuple) {
 		this.currentTuple = tuple;
 		result = new LinkedList<Boolean>();
 		data = new LinkedList<Long>();
 	}
 	
-	//Getters and setters
+	/**get current tuple*/
 	public Tuple getCurrentTuple() {
 		return currentTuple;
 	}
 
-
+	/**set current tuple*/
 	public void setCurrentTuple(Tuple currentTuple) {
 		this.currentTuple = currentTuple;
 	}
 
-
+	/**get result*/
 	public LinkedList<Boolean> getResult() {
 		return result;
 	}
 
-
+	/**set result*/
 	public void setResult(LinkedList<Boolean> result) {
 		this.result = result;
 	}
 	
+	/**get data*/
 	public LinkedList<Long> getData(){
 		return data;
 	}
 	
+	/**set data*/
 	public void setData (LinkedList<Long> data) {
 		
 	}
 	
-	//Implement AndExpression, Column, LongValue, EqualsTo, NotEqualsTo, GreaterThan
-	//GreaterThanEquals, MinorThan, MinorThanEquals
-	
+	/**visit AndExpression node*/
 	public void visit(AndExpression and) {
 		and.getLeftExpression().accept(this);
 		and.getRightExpression().accept(this);
@@ -101,6 +115,7 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 		
 	}
 	
+	/**visit Column node*/
 	public void visit(Column column) {
 		String columnName = column.getWholeColumnName();
 		int data_ind = currentTuple.getSchema().get(columnName);
@@ -108,11 +123,13 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 		
 	}
 
+	/**visit LongValue node*/
 	public void visit(LongValue longV) {
 		this.data.add(longV.getValue());
 		
 	}
 	
+	/**visit EqualsTo node*/
 	public void visit(EqualsTo equals) {
 		equals.getLeftExpression().accept(this);
 		equals.getRightExpression().accept(this);
@@ -122,6 +139,7 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 			
 	}
 	
+	/**visit NotEqualsTo node*/
 	public void visit(NotEqualsTo notEquals) {
 		notEquals.getLeftExpression().accept(this);
 		notEquals.getRightExpression().accept(this);
@@ -131,6 +149,7 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 		
 	}
 	
+	/**visit GreaterThan node*/
 	public void visit(GreaterThan greater) {
 		greater.getLeftExpression().accept(this);
 		greater.getRightExpression().accept(this);
@@ -140,6 +159,7 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 		
 	}
 	
+	/**visit GreaterThanEquals node*/
 	public void visit(GreaterThanEquals greaterEquals) {
 		greaterEquals.getLeftExpression().accept(this);
 		greaterEquals.getRightExpression().accept(this);
@@ -149,6 +169,7 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 		
 	}
 	
+	/**visit MinorThan node*/
 	public void visit(MinorThan minor) {
 		minor.getLeftExpression().accept(this);
 		minor.getRightExpression().accept(this);
@@ -158,6 +179,7 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 		
 	}
 
+	/**visit MinorThanEquals node*/
 	public void visit(MinorThanEquals minorEquals) {
 		minorEquals.getLeftExpression().accept(this);
 		minorEquals.getRightExpression().accept(this);

@@ -10,16 +10,27 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import visitors.BasicExpressionVisitor;
 
-//Deal with Select * From Table Where Table.A<...
+/**
+ * this class provides function:
+ * handle Expression from WHERE and select required information
+ * @author Yixuan Jiang
+ *
+ */
+
 public class SelectOperator extends Operator{
 	
 	private Expression expression;
 	private LinkedList<OrderedTable> tableAliase;
 	private int expressionType;
 
+	/**
+	 * This method is to get the next tuple
+	 * 
+	 * @return next tuple
+	 */
 	@Override
 	public Tuple getNextTuple() {
-		// TODO Auto-generated method stub
+	
 		Tuple t = getChild().getFirst().getNextTuple();
 		if(expression!=null) {
 			while (t!=null) {
@@ -34,13 +45,24 @@ public class SelectOperator extends Operator{
 		return t;
 	}
 
+	/**
+	 * This method is to reset select operator
+	 * by resetting its child operator
+	 */
 	@Override
 	public void reset() {
 		getChild().getFirst().reset();
 		
 	}
 	
-	//Constructors
+	/** 
+	 * This method is a constructor which is to
+	 * initialize related fields.
+	 * 
+	 * @param plainSelect  PlainSelect of query
+	 * @param op  pass in child operator
+	 * 
+	 */
 	public SelectOperator(PlainSelect ps, Operator op) {
 		String tableInfo = ps.getFromItem().toString();
 		String[] aimTable = tableInfo.split("\\s+");
@@ -51,6 +73,10 @@ public class SelectOperator extends Operator{
 		this.expression = ps.getWhere();
 	}
 	
+	/** 
+	 * This method is a constructor which is to
+	 * initialize related fields.
+	 */
 	
 	public SelectOperator(OrderedTable tAliase, Expression ex, Operator op, int exType) {
 		setChild(op);
@@ -60,6 +86,10 @@ public class SelectOperator extends Operator{
 		this.expressionType = exType;
 	}
 	
+	/** 
+	 * This method is a constructor which is to
+	 * initialize related fields.
+	 */
 	public SelectOperator(Expression ex, Operator op, int exType, LinkedList<OrderedTable> tAliase) {
 		setChild(op);
 		this.expression = ex;
@@ -67,41 +97,40 @@ public class SelectOperator extends Operator{
 		this.tableAliase = tAliase;
 	}
 	
+	/**default constructor*/
 	public SelectOperator() {
-		
 	}
-	
-	
-    //Getters and Setters
 
+	/** get expression*/
 	public Expression getExpression() {
 		return expression;
 	}
 
+	/** set expression*/
 	public void setExpression(Expression expression) {
 		this.expression = expression;
 	}
 
+	/** get table aliase*/
 	public LinkedList<OrderedTable> getTableAliase() {
 		return tableAliase;
 	}
 
+	/** set table aliase*/
 	public void setTableAliase(OrderedTable tAliase) {
 		LinkedList<OrderedTable> aliase = new LinkedList<OrderedTable>();
 		aliase.add(tAliase);
 		this.tableAliase = aliase;
 	}
 
+	/** get expression type*/
 	public int getExpressionType() {
 		return expressionType;
 	}
 
+	/** set expression type*/
 	public void setExpressionType(int expressionType) {
 		this.expressionType = expressionType;
 	}
-	
-	
-	
-	
 
 }
