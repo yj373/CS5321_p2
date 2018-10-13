@@ -70,8 +70,9 @@ public class Tuple {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i<data.length; i++) {
 			sb.append(String.valueOf(data[i]));
-			sb.append(" ");
+			sb.append("");
 		}
+		sb.deleteCharAt(sb.length()-1);
 		return sb.toString();
 	}
 	
@@ -110,8 +111,9 @@ public class Tuple {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i<data.length; i++) {
 			sb.append(String.valueOf(data[i]));
-			sb.append(" ");
+			sb.append(",");
 		}
+		sb.deleteCharAt(sb.length()-1);
 		System.out.println(sb.toString());
 		
 	}
