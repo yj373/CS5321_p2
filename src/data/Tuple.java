@@ -71,7 +71,6 @@ public class Tuple {
 		for (int i = 0; i<data.length; i++) {
 			sb.append(String.valueOf(data[i]));
 			sb.append(",");
-
 		}
 		sb.deleteCharAt(sb.length()-1);
 		return sb.toString();

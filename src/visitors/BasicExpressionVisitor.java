@@ -118,9 +118,10 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 	/**visit Column node*/
 	public void visit(Column column) {
 		String columnName = column.getWholeColumnName();
-		int data_ind = currentTuple.getSchema().get(columnName);
-		this.data.add(currentTuple.getData()[data_ind]);
-		
+		if (currentTuple.getSchema().containsKey(columnName)) {
+			int data_ind = currentTuple.getSchema().get(columnName);
+			this.data.add(currentTuple.getData()[data_ind]);
+		}		
 	}
 
 	/**visit LongValue node*/
@@ -133,9 +134,16 @@ public class BasicExpressionVisitor implements ExpressionVisitor{
 	public void visit(EqualsTo equals) {
 		equals.getLeftExpression().accept(this);
 		equals.getRightExpression().accept(this);
-		Long right_v = this.data.getLast();
-		Long left_v = this.data.get(data.size()-2);
-		this.result.add(left_v.equals(right_v));
+		if(data.size()<2) this.result.add(true);
+		else {
+			Long right_v = this.data.getLast();
+			Long left_v = this.data.get(data.size()-2);
+			this.result.add(left_v.equals(right_v));
+		}
+		while(!data.isEmpty()) {
+			data.removeFirst();
+		}
+		
 			
 	}
 	

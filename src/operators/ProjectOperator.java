@@ -59,18 +59,23 @@ public class ProjectOperator extends Operator{
 			long[] data = new long[selectItems.size()];
 			Map<String, Integer> schema = new HashMap<String, Integer>();
 			int index = 0;
-			
+			boolean flag = false;
 			for (SelectItem expre : selectItems) {
 				String attributeName = expre.toString();
 				Integer dataIndex = current.getSchema().get(attributeName);
 				if (dataIndex!=null) {
+					flag = true;
 					data[index] = current.getData()[dataIndex];
 					schema.put(attributeName, index);
 					index++;
 				}	
 			}
+			if (flag) {
+				current = new Tuple(data, schema);
+			}else {
+				current = null;
+			}
 			
-			current = new Tuple(data, schema);
 		}
 		return current;
 	}
