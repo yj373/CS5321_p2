@@ -50,9 +50,11 @@ public class SortOperator extends Operator{
 		/*get sorting sequence*/
 		if (current != null) {
 			schema = current.getSchema();
+
 		}else {
 			schema = new HashMap<String, Integer>();
-		}
+		} 
+		
 		Map<Integer, String> pairs = new HashMap<Integer, String>();
 		for (String key : schema.keySet()) {
 			pairs.put(schema.get(key), key);

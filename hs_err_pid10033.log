@@ -1,0 +1,31 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x000000010ebe048a, pid=10033, tid=22531
+#
+# JRE version: Java(TM) SE Runtime Environment (10.0.1+10) (build 10.0.1+10)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (10.0.1+10, mixed mode, tiered, compressed oops, g1 gc, bsd-amd64)
+# Problematic frame:
+# C  [libjimage.dylib+0x248a]  _ZNK15ImageFileReader19find_location_indexEPKcPy+0x2c
+#
+# No core dump will be written. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+#
+
+---------------  S U M M A R Y ------------
+
+Command Line: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:62172 -Dfile.encoding=UTF-8 parser_test.ParserExample
+
+Host: MacBookAir7,2 x86_64 1600 MHz, 4 cores, 8G, Darwin 17.7.0
+Time: Sun Sep 30 11:38:47 2018 EDT elapsed time: 8670 seconds (0d 2h 24m 30s)
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007f8746808800):  JavaThread "Signal Dispatcher" daemon [_thread_in_vm, id=22531, stack(0x000070000d1d5000,0x000070000d2d5000)]
+
+Stack: [0x000070000d1d5000,0x000070000d2d5000],  sp=0x000070000d2d3290,  free space=1016k
+Native frames: (J=compiled Java code, A=aot compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libjimage.dylib+0x248a]  _ZNK15ImageFileReader19find_location_indexEPKcPy+0x2c
+C  [libjimage.dylib+0x2831]  JIMAGE_FindResource+0xd7
