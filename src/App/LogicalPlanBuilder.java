@@ -23,7 +23,7 @@ public class LogicalPlanBuilder {
 		this.ps = (PlainSelect)(((Select)stm).getSelectBody());
 	}
 	
-	public void buildQueryPlan() {	
+	public void buildLogicQueryPlan() {	
 	// To begin with, build the join operator layer by layer, like a complete binary tree
 	    if (ps != null) {
 		// first step, set the maintable's scanOperator as the top element
