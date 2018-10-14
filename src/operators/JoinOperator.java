@@ -55,19 +55,28 @@ public class JoinOperator extends Operator{
 		    	currLeftTup = left.getNextTuple();
 		    	currRightTup = right.getNextTuple();
 		    	
-		    	// if leftTable is null or right table is empty
+		    	// if leftTable is null or right table is empty 
 		    	if(currRightTup == null) {
-		    		return judgeExpression(currLeftTup) ? currLeftTup : this.getNextTuple();
+		    		if (this.getExpression() == null) {
+		    			return judgeExpression(currLeftTup) ? currLeftTup : this.getNextTuple();
+		    		}else {
+		    			return null;
+		    		}
+		    		
 		    	}
 		    	if(currLeftTup == null) {
-		    		return judgeExpression(currRightTup) ? currRightTup : this.getNextTuple();
+		    		if (this.getExpression() == null) {
+		    			return judgeExpression(currRightTup) ? currRightTup : this.getNextTuple();
+		    		}else {
+		    			return null;
+		    		}
 		    	}
 	    	} else {
 	    		return null;
 	    	}
 	    } else {
 	    	if (currRightTup == null) {
-		    	left.reset();
+		    	right.reset();
 		    	currLeftTup = left.getNextTuple();
 		    	currRightTup = right.getNextTuple();
 		    } else {
@@ -77,7 +86,9 @@ public class JoinOperator extends Operator{
    
 	    if ( currLeftTup != null && currRightTup != null) {
 	    	Tuple res = concatenate(currLeftTup, currRightTup);
-	    	return judgeExpression(res) ? res : this.getNextTuple();
+	    	//return judgeExpression(res) ? res : this.getNextTuple();
+	    	if (judgeExpression(res)) return res;
+	    	else return this.getNextTuple();
 	    }
 		return this.getNextTuple();
 	}

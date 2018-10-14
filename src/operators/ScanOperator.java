@@ -47,7 +47,10 @@ public class ScanOperator extends Operator{
 						boolean res = super.judgeExpression(t);
 						if(res) break;
 						data = readPointer.readLine();
-						t = new Tuple(data, tableAliase, attributes);
+						if (data != null) {
+							t = new Tuple(data, tableAliase, attributes);
+						}else return null;
+						
 					}
 								
 				}
