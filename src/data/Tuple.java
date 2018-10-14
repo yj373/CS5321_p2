@@ -45,6 +45,21 @@ public class Tuple {
 	}
 	
 	
+	//create by xiaoxing for tuplereader test
+	public Tuple(long[] data, String table_aliase, LinkedList<String> attributes) {
+		
+		this.data = data;
+		if (data.length!=attributes.size()) return;
+		schema = new HashMap<String, Integer>();
+		for (int i=0; i<data.length; i++) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(table_aliase);
+			sb.append(".");
+			sb.append(attributes.get(i));
+			schema.put(sb.toString(), i);
+		}
+	}
+	
 	/** 
 	 * This method is a constructor which is to
 	 * construct a tuple from previous tuple
