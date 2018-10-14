@@ -5,6 +5,7 @@ import java.util.List;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import visitors.LogicalPlanVisitor;
+import visitors.PhysicalPlanVisitor;
 
 public class LogicalProjectOperator extends LogicalOperator{
 	/*store information of needed attributes*/
@@ -44,6 +45,12 @@ public class LogicalProjectOperator extends LogicalOperator{
 	@Override
 	public void accept(LogicalPlanVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public void accept(PhysicalPlanVisitor visitor) {
+		visitor.visit(this);
+		
 	}
 	
 }

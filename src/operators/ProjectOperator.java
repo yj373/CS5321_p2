@@ -34,14 +34,20 @@ public class ProjectOperator extends Operator{
 	 */
 
 	public ProjectOperator(PlainSelect plainSelect,Operator op) {
-		LinkedList<Operator> newChild = new LinkedList<Operator>();
-		newChild.add(op);
-		super.setChild(newChild);
+		super.setLeftChild(op);
 		selectItems = plainSelect.getSelectItems();
 		if (selectItems.get(0).toString() == "*") {
 			allColumns = true;
 		} 
 		
+	}
+	
+	public ProjectOperator(List<SelectItem> sI, Operator op) {
+		super.setLeftChild(op);
+		this.selectItems = sI;
+		if (selectItems.get(0).toString() == "*") {
+			allColumns = true;
+		} 
 	}
 
 	
@@ -52,7 +58,7 @@ public class ProjectOperator extends Operator{
 	 */
 	@Override
 	public Tuple getNextTuple() {
-		Operator child = getChild().get(0);
+		Operator child = getLeftChild();
 		Tuple current = child.getNextTuple();
 		if (current != null && !allColumns) {
 			/*Assume there must be corresponding columns in the given tuple*/
@@ -86,7 +92,7 @@ public class ProjectOperator extends Operator{
 	 */
 	@Override
 	public void reset() {
-		getChild().get(0).reset();
+		getLeftChild().reset();
 		
 	}
 	

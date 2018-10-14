@@ -8,7 +8,7 @@ import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.*;
 import operators.Operator;
-import visitors.BasicVisitor;
+import visitors.PhysicalPlanVisitor;
 
 
 /**
@@ -49,9 +49,12 @@ public class SQLInterpreter {
 			while ((statement = parser.Statement()) != null) {
 				System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
-				BasicVisitor visitor = new BasicVisitor();
+				LogicalPlanBuilder lb = new LogicalPlanBuilder(select);
+				lb.buildLogicQueryPlan();
+				PhysicalPlanVisitor pv = new PhysicalPlanVisitor();
 				try {
-					root = visitor.getQueryPlan(select);
+					lb.getRoot().accept(pv);
+					root = pv.getPhysicalRoot();
 					writeToFile (index, root);
 				} catch (Exception e) {
 					System.err.println("Exception occurred during paring query" + index);

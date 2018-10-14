@@ -36,9 +36,7 @@ public class DuplicateEliminationOperator extends Operator{
 		}else {
 			workState = false;
 		}
-		LinkedList<Operator> newChild = new LinkedList<Operator>();
-		newChild.add(op);
-		super.setChild(newChild);
+		super.setLeftChild(op);
 	}
 	
 	
@@ -50,7 +48,7 @@ public class DuplicateEliminationOperator extends Operator{
 
 	@Override
 	public Tuple getNextTuple() {
-		Operator child = super.getChild().get(0);
+		Operator child = getLeftChild();
 		Tuple t = child.getNextTuple();
 
 		if(workState) {
@@ -72,7 +70,7 @@ public class DuplicateEliminationOperator extends Operator{
 
 	@Override
 	public void reset() {
-		super.getChild().get(0).reset();
+		getLeftChild().reset();
 
 	}
 

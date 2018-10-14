@@ -8,6 +8,8 @@ import java.util.LinkedList;
 
 import data.Dynamic_properties;
 import data.Tuple;
+import net.sf.jsqlparser.expression.Expression;
+import visitors.BasicExpressionVisitor;
 
 /**
  * parent class of every operator
@@ -16,31 +18,43 @@ import data.Tuple;
  *
  */
 public abstract class Operator {
-	private Operator parent;
-	private LinkedList<Operator> child;
+	private Operator leftChild;
+	private Operator rightChild;
+	private Expression exp;
 
 	/**
-	 * get a linkedlist of child operator
+	 * get child operator
 	 */
-	public LinkedList<Operator> getChild() {
-		return child;
+	public Operator getLeftChild() {
+		return leftChild;
 	}
+	public Operator getRightChild() {
+		return rightChild;
+	}
+	
 
 	/**
 	 * set child operator
 	 */
-	public void setChild(LinkedList<Operator> child) {
-		this.child = child;
+	public void setLeftChild(Operator child) {
+		this.leftChild = child;
+	}
+	
+	public void setRightChild(Operator child) {
+		this.rightChild = child;
 	}
 	
 	/**
-	 * set child operator
+	 * get the expression
+	 * set the expression
 	 */
-	public void setChild(Operator op) {
-		LinkedList<Operator> childList = new LinkedList<Operator>();
-		childList.add(op);
-		this.child = childList;
+	public Expression getExpression() {
+		return exp;
 	}
+	public void setExpression(Expression expression) {
+		this.exp = expression;
+	}
+	
 
 	/**
 	 * Return the next next tuple, if there are some available 
@@ -93,19 +107,12 @@ public abstract class Operator {
 		}
 		reset();
 	}
-
-	/**
-	 * getter method to get parent operator
-	 */
-	public Operator getParent() {
-		return parent;
-	}
-
-	/**
-	 * setter method to set parent operator
-	 */
-	public void setParent(Operator parent) {
-		this.parent = parent;
+	
+	public boolean judgeExpression(Tuple tuple) {
+		BasicExpressionVisitor bev = new BasicExpressionVisitor(tuple);
+		exp.accept(bev);
+		boolean res = bev.getResult().getLast();
+		return res;
 	}
 
 

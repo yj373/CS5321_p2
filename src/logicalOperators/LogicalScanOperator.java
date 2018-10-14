@@ -4,6 +4,7 @@ import java.util.LinkedList;
 
 import data.DataBase;
 import visitors.LogicalPlanVisitor;
+import visitors.PhysicalPlanVisitor;
 
 public class LogicalScanOperator extends LogicalOperator {
 	private String tableName;
@@ -54,6 +55,12 @@ public class LogicalScanOperator extends LogicalOperator {
 	/** get table address*/
 	public String getTableAddress() {
 		return tableAddress;
+	}
+
+	@Override
+	public void accept(PhysicalPlanVisitor visitor) {
+		visitor.visit(this);
+		
 	}
 
 	
