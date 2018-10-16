@@ -2,6 +2,7 @@ package logicalOperators;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import visitors.LogicalPlanVisitor;
+import visitors.PhysicalPlanVisitor;
 
 public class LogicalSortOperator extends LogicalOperator{
 	private PlainSelect plainSelect;	
@@ -31,5 +32,11 @@ public class LogicalSortOperator extends LogicalOperator{
 	@Override
 	public void accept(LogicalPlanVisitor visitor) {
 		visitor.visit(this);	
+	}
+
+	@Override
+	public void accept(PhysicalPlanVisitor visitor) {
+		visitor.visit(this);
+		
 	}
 }

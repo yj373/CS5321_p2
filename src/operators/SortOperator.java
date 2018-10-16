@@ -40,12 +40,10 @@ public class SortOperator extends Operator{
 	public SortOperator(PlainSelect plainSelect, Operator op) {
 
 		this.plainSelect = plainSelect;
-		LinkedList<Operator> newChild = new LinkedList<Operator>();
-		newChild.add(op);
-		setChild(newChild);
+		setLeftChild(op);
 
 		dataCollection = new ArrayList<Tuple>();
-		Tuple current = getChild().get(0).getNextTuple();
+		Tuple current = getLeftChild().getNextTuple();
 
 		/*get sorting sequence*/
 		if (current != null) {
@@ -68,11 +66,11 @@ public class SortOperator extends Operator{
 		/*read all tuples*/
 		while (current!=null) {
 			dataCollection.add(current);
-			current = getChild().get(0).getNextTuple();
+			current = getLeftChild().getNextTuple();
 		}
 
 		Collections.sort(dataCollection, new TupleComparator());
-		getChild().get(0).reset();
+		getLeftChild().reset();
 
 	}
 
@@ -102,18 +100,6 @@ public class SortOperator extends Operator{
 		currentIndex = 0;
 	}
 
-
-
-	/**
-	 * setter method to set child
-	 * 
-	 * @param op Operator to set
-	 */
-	public void setChild(Operator op) {
-		LinkedList<Operator> newChild = new LinkedList<Operator>();
-		newChild.add(op);
-		setChild(newChild);
-	}
 
 
 	/**

@@ -1,6 +1,7 @@
 package logicalOperators;
 
 import visitors.LogicalPlanVisitor;
+import visitors.PhysicalPlanVisitor;
 
 public class LogicalJoinOperator extends LogicalOperator {
 
@@ -38,6 +39,12 @@ public class LogicalJoinOperator extends LogicalOperator {
 	 */
 	public LogicalOperator getRightChild() {
 		return rightChild;
+	}
+
+	@Override
+	public void accept(PhysicalPlanVisitor visitor) {
+		visitor.visit(this);
+		
 	}
 
 }

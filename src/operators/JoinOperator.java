@@ -3,6 +3,7 @@ package operators;
 import java.util.*;
 
 import data.Tuple;
+import net.sf.jsqlparser.expression.Expression;
 import operators.SortOperator.TupleComparator;
 
 
@@ -23,12 +24,10 @@ public class JoinOperator extends Operator{
 	 * @param op1 leftChild Operator
 	 * @param op2 rightChild Operator
 	 */
-	public JoinOperator(Operator op1, Operator op2) {
-		LinkedList<Operator> childList = new LinkedList<Operator>();
-		childList.add(op1);
-		childList.add(op2);
-		super.setChild(childList);
-		setChild(childList);
+	public JoinOperator(Operator op1, Operator op2, Expression expression) {
+		setExpression(expression);
+		setLeftChild(op1);
+		setRightChild(op2);
 	    currLeftTup = null;
 	    currRightTup = null;
 	}
@@ -39,12 +38,13 @@ public class JoinOperator extends Operator{
 	@Override
 	public Tuple getNextTuple() {		
 		/* Corner Case: when there are less than two operators under join operator.*/
-		LinkedList<Operator> childList = super.getChild();
-		if (childList.get(0)== null && childList.get(1) == null) {
+		Operator left = getLeftChild();
+		Operator right = getRightChild();
+		if (left== null && right == null) {
 			return null;
 		}
-		if (childList.get(0) == null || childList.get(1) == null) {
-			return childList.get(0) == null ? childList.get(1).getNextTuple() : childList.get(0).getNextTuple();
+		if (left == null || right == null) {
+			return left == null ? right.getNextTuple() : left.getNextTuple();
 		}
 
 		/* If currLeftTup and currRightTup are both null, it is the start of join
@@ -52,31 +52,43 @@ public class JoinOperator extends Operator{
 		 */
 	    if (currLeftTup == null) {
 	    	if (currRightTup == null) {
-		    	currLeftTup = childList.get(0).getNextTuple();
-		    	currRightTup = childList.get(1).getNextTuple();
+		    	currLeftTup = left.getNextTuple();
+		    	currRightTup = right.getNextTuple();
 		    	
-		    	// if leftTable is null or right table is empty
+		    	// if leftTable is null or right table is empty 
 		    	if(currRightTup == null) {
-		    		return currLeftTup;
+		    		if (this.getExpression() == null) {
+		    			return judgeExpression(currLeftTup) ? currLeftTup : this.getNextTuple();
+		    		}else {
+		    			return null;
+		    		}
+		    		
 		    	}
 		    	if(currLeftTup == null) {
-		    		return currRightTup;
+		    		if (this.getExpression() == null) {
+		    			return judgeExpression(currRightTup) ? currRightTup : this.getNextTuple();
+		    		}else {
+		    			return null;
+		    		}
 		    	}
 	    	} else {
 	    		return null;
 	    	}
 	    } else {
 	    	if (currRightTup == null) {
-		    	childList.get(1).reset();
-		    	currLeftTup = childList.get(0).getNextTuple();
-		    	currRightTup = childList.get(1).getNextTuple();
+		    	right.reset();
+		    	currLeftTup = left.getNextTuple();
+		    	currRightTup = right.getNextTuple();
 		    } else {
-		    	currRightTup = childList.get(1).getNextTuple();	
+		    	currRightTup = right.getNextTuple();	
 		    }	    	
 	    }
    
 	    if ( currLeftTup != null && currRightTup != null) {
-	    	return concatenate(currLeftTup, currRightTup);
+	    	Tuple res = concatenate(currLeftTup, currRightTup);
+	    	//return judgeExpression(res) ? res : this.getNextTuple();
+	    	if (judgeExpression(res)) return res;
+	    	else return this.getNextTuple();
 	    }
 		return this.getNextTuple();
 	}
@@ -122,52 +134,14 @@ public class JoinOperator extends Operator{
      */
 	@Override
 	public void reset() {
-		LinkedList<Operator> childList = super.getChild();
-		if (childList.get(0) != null) {
-			childList.get(0).reset();
+		Operator left = getLeftChild();
+		Operator right = getRightChild();
+		if (left != null) {
+			left.reset();
 		}
-		if (childList.get(1) != null) {
-			childList.get(1).reset();
+		if (right != null) {
+			right.reset();
 		}
 		
 	}
-	
-	/**
-	 * get LeftChild Operator
-	 * @return the leftChild
-	 */
-	public Operator getLeftChild() {
-		return super.getChild().get(0);
-	}
-	
-	/**
-	 * get rightChild Operator
-	 * @return the rightChild
-	 */
-	public Operator getRightChild() {
-		return super.getChild().get(1);
-	}
-	
-	/**
-	 * set the leftChild Operator
-	 * @param the leftChild Operator to set as
-	 */
-	
-	public void setLeftChild(Operator op) {
-		LinkedList<Operator> newChild = super.getChild();
-		newChild.remove(0);
-		newChild.addFirst(op);
-		super.setChild(newChild);
-	}
-	
-	/**
-	 * set the rightChild Operator
-	 * @param the rightChild Operator to set as
-	 */
-    public void setRightChild(Operator op) {
-    	LinkedList<Operator> newChild = super.getChild();
-    	newChild.remove(1);
-		newChild.add(op);
-		super.setChild(newChild);
-    }
 }

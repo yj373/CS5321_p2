@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import data.DataBase;
 
 import data.Tuple;
+import net.sf.jsqlparser.expression.Expression;
+import visitors.BasicExpressionVisitor;
 
 /**
  * this class provides function:
@@ -38,8 +40,21 @@ public class ScanOperator extends Operator{
 			String data = readPointer.readLine();
 			if (data!=null) {
 				/*Handle aliases*/
-				Tuple tuple = new Tuple(data, tableAliase, attributes);
-				return tuple;
+				Tuple t = new Tuple(data, tableAliase, attributes);
+				Expression e = this.getExpression();
+				if(e!=null) {
+					while (t!=null) {
+						boolean res = super.judgeExpression(t);
+						if(res) break;
+						data = readPointer.readLine();
+						if (data != null) {
+							t = new Tuple(data, tableAliase, attributes);
+						}else return null;
+						
+					}
+								
+				}
+				return t;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -78,7 +93,7 @@ public class ScanOperator extends Operator{
 	 * @param tableInfo table information
 	 * 
 	 */
-	public ScanOperator(String tableInfo) {
+	public ScanOperator(String tableInfo, Expression expression) {
 		String[] aimTable = tableInfo.split("\\s+");
 		if (aimTable.length<1) {
 			this.tableName = null;
@@ -95,6 +110,7 @@ public class ScanOperator extends Operator{
 		}
 		this.tableAliase = aimTable[aimTable.length-1];
 		this.attributes = DataBase.getInstance().getSchema(tableName);
+		setExpression(expression);
 	}
 	
 	/** 
@@ -105,7 +121,7 @@ public class ScanOperator extends Operator{
 	 * @param tableAliase
 	 * 
 	 */
-	public ScanOperator(String tableName, String tableAliase) {
+	public ScanOperator(String tableName, String tableAliase, Expression expression) {
 		this.tableName = tableName;
 		this.tableAddress = DataBase.getInstance().getAddresses(tableName);
 		this.tableFile = new File(tableAddress);
@@ -118,6 +134,7 @@ public class ScanOperator extends Operator{
 		if (tableAliase == null) this.tableAliase = tableName;
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
+		setExpression(expression);
 	}
 	
 	/** 
@@ -130,7 +147,6 @@ public class ScanOperator extends Operator{
 	 * 
 	 */
 	public ScanOperator(String tableName, String tableAliase, Operator op) {
-		setParent(op);
 		this.tableName = tableName;
 		this.tableAddress = DataBase.getInstance().getAddresses(tableName);
 		this.tableFile = new File(tableAddress);
