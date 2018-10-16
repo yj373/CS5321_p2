@@ -28,8 +28,10 @@ public class TupleReader {
 	private int tupleNumber;
 	/*the file channel we are using*/
 	private FileChannel fcin;
+	/*the ith page we are reading in this file*/
+	private int pageNumber;
 
-	/*for tuple in this table*/
+	/*for constructing tuple in this table*/
 	private String tableInfo;
 	private String tableName;
 	private String tableAddress;
@@ -45,6 +47,7 @@ public class TupleReader {
 			empty = true;
 			filePosition = 0;
 			bufferPosition = 0;
+			pageNumber = 0;
 			this.tableInfo = tableInfo;
 			System.out.println("这里的table参数是"+tableInfo);
 			/*create a new buffer with size 4096 bytes*/ 
@@ -71,7 +74,6 @@ public class TupleReader {
 		}
 
 		/*get the information of table*/
-		//需要设成全局变量吗
 		tableName = aimTable[0];
 		tableAddress = DataBase.getInstance().getAddresses(tableName);
 		tableAliase = aimTable[aimTable.length-1];
@@ -84,19 +86,18 @@ public class TupleReader {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			e.getMessage();
-		}
+		}		
 
 	}
-
 
 	//main method to test
 	public static void main(String[] args) throws Exception {
 		TupleReader test = new TupleReader("Boats AS B");
-		for (int i=0; i< 341; i++) {
-
+		for (int i=0; i< 1001; i++) {
 			test.readNextTuple();
 		}
-
+		//test.readNextTuple();
+		
 	}
 
 
@@ -108,6 +109,8 @@ public class TupleReader {
 			// read方法返回读取的字节数，可能为零，如果该通道已到达流的末尾，则返回-1  
 			/*if we have reached the end of file*/
 			if (r == -1) {
+				close();
+				System.out.println("到了文件末尾了");
 				return null;  
 			} 
 			empty = false;
@@ -123,6 +126,12 @@ public class TupleReader {
 			bufferPosition += 4;
 		}
 
+//		//test
+//		for (long num:data) {
+//			System.out.print(num+" ");
+//		}
+//		System.out.println();
+		
 		/*create a new tuple*/
 		Tuple tuple = new Tuple(data, tableAliase, attributes);
 		tupleNumber--;
@@ -163,24 +172,27 @@ public class TupleReader {
 	 * @throws Exception
 	 */
 	private int readFromChannel() throws Exception  {
+		pageNumber+=1;
+		System.out.println("第"+pageNumber+"页");
 
 		// clear方法重设缓冲区，使它可以接受读入的数据  
 		buffer.clear();  
-
-
+		
 		System.out.println("读之前这里的file position是"+filePosition);
 
+		fcin.position(filePosition);
 		/*Reads a sequence of bytes from this channel into the given buffer.*/
 		int r = fcin.read(buffer); 
 
 
 
 		/*record the next position*/
-		filePosition = fcin.position()+1;//debug later 不确定这里的position是否是对的
+		filePosition = fcin.position();
 		System.out.println("读之后这里的file position是"+filePosition);
 
 		/*set the buffer position to zero*/
 		buffer.flip();
+		bufferPosition = 0;//重新读进来以后人为的也要重置 啊！！！！
 
 		return r;
 
