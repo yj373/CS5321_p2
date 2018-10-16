@@ -1,4 +1,4 @@
-package data;
+package util;
 
 
 
@@ -10,13 +10,14 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;  
 import java.nio.channels.FileChannel;
 import java.util.LinkedList;
-import java.util.List;
+import data.DataBase;
+import data.Tuple;
 
 public class TupleReader {
 
 	/*the next position we want to read from the buffer*/
 	private int bufferPosition;
-	/*the next position we want to read from the file to channel*/
+	/*the next position we want to read from the channel*/
 	private long filePosition;
 	/*check whether the buffer is empty or not*/
 	private boolean empty;
