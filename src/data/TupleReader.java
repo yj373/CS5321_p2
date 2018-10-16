@@ -210,12 +210,22 @@ public class TupleReader {
 	/**
 	 * 
 	 */
-	public void reset() {
+	public void resetBuffer() {
+		this.bufferPosition = 0;
 
 	}
 	
-	public void reset(int index) {
+	public void resetBuffer(int index) {
+		this.bufferPosition = index;
 
+	}
+	
+	public void resetFileChannel() {
+		this.filePosition = 0;
+	}
+	
+	public void resetFileChannel(int index) {
+		this.filePosition = index;
 	}
 
 }
