@@ -7,12 +7,26 @@ import java.io.IOException;
 
 import data.Dynamic_properties;
 
+/**
+ * Debug Tool: to generate log files to maintain the output during debugging and running
+ * process of the program.
+ * 
+ * @author Ruoxuan Xu
+ *
+ */
 public class Logger {
+	/* ingleton pattern, only one loggerInstance is allowed */
     private static Logger loggerInstance = null;
+    
+    /* non static fields are all fields of the single instance */
     private String fileDiretory;
     private FileWriter fileWriter;
  
-    // Singleton pattern, only one loggerInstance is allowed.   
+    /**
+     * private constructor to create the only instance of this class.
+     * The log file remains the same wherever it is called.
+     * @throws IOException
+     */
     private Logger() throws IOException {
     	this.fileDiretory = Dynamic_properties.outputPath;
     	File folder = new File(fileDiretory);
@@ -23,7 +37,10 @@ public class Logger {
     	fileWriter = new FileWriter(file);
     }
    
-    // Logger.println() to add 
+    /**
+     * Write debugLine into the log file with the '\n' as the default end.
+     * @param debugLine
+     */
     public static void println(String debugLine) {
     	try {
 	    	if (loggerInstance == null) {
@@ -39,6 +56,10 @@ public class Logger {
     	}  	
     }
     
+    /**
+     * Write debugLine into the log file without the '\n' as the default end.
+     * @param debugLine
+     */
     public static void print(String debugLine) {
     	try {
 	    	if (loggerInstance == null) {

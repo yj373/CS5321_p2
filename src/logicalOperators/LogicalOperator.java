@@ -7,7 +7,11 @@ import visitors.LogicalPlanVisitor;
 import visitors.PhysicalPlanVisitor;
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
-
+/**
+ * The base class of logical operators.
+ * @author Ruoxuan Xu
+ *
+ */
 public abstract class LogicalOperator {
 	protected LogicalOperator leftChild;
 	protected LogicalOperator rightChild;
