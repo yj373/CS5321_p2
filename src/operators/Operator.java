@@ -83,33 +83,7 @@ public abstract class Operator {
 	}
 
 	
-	/**以前的dump()
-	 * Write all Tuples to corresponding file
-	 * 
-	 * @param index index of file
-	 *
-
-	public void dump(int index) {
-		reset();
-		String output_path = Dynamic_properties.outputPath;
-		new File (output_path).mkdirs();
-		File file = new File(output_path + "/query" + index);
-		try {
-			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-			Tuple tuple = getNextTuple();
-			while (tuple != null) {
-				tuple.printData();
-				bw.write(tuple.getTupleData().toString() + '\n');
-				tuple = getNextTuple();
-			}
-			bw.close();   
-		}catch(IOException e) {
-			e.printStackTrace();
-			e.getMessage();
-		}
-		reset();
-	}
-	*/
+	
 	public boolean judgeExpression(Tuple tuple) {
 		BasicExpressionVisitor bev = new BasicExpressionVisitor(tuple);
 		exp.accept(bev);
@@ -125,8 +99,6 @@ public abstract class Operator {
 	 * @param index index of file
 	 * @throws IOException 
 	 */
-
-	
 	public void dump(int index) throws IOException {
 		reset();
 		
@@ -136,7 +108,6 @@ public abstract class Operator {
 		output.append(String.valueOf(index));
 		
 		TupleWriter write = new TupleWriter(output.toString());
-		
 		while (true) {
 			Tuple tuple = getNextTuple();
 			
@@ -149,23 +120,6 @@ public abstract class Operator {
 	}
 		
 		
-//		String output_path = Dynamic_properties.outputPath;
-//		new File (output_path).mkdirs();
-//		File file = new File(output_path + "/query" + index);
-//		try {
-//			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
-//			Tuple tuple = getNextTuple();
-//			while (tuple != null) {
-//				tuple.printData();
-//				bw.write(tuple.getTupleData().toString() + '\n');
-//				tuple = getNextTuple();
-//			}
-//			bw.close();   
-//		}catch(IOException e) {
-//			e.printStackTrace();
-//			e.getMessage();
-//		}
-//		reset();
-//	}
+
 
 }

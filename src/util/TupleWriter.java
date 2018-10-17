@@ -1,5 +1,14 @@
 package util;
 
+/**
+ * This class provides function:
+ * 
+ * generate binary output file and human readable output file
+ * 
+ * @author Xiaoxing Yan
+ *
+ */
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,7 +17,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.LinkedList;
 import util.TupleReader;
 import data.Dynamic_properties;
 import data.Tuple;
@@ -39,8 +47,8 @@ public class TupleWriter {
 	private BufferedWriter humanbw;
 
 
-
 	//for test
+<<<<<<< HEAD
 //	public static void main(String[] args) throws Exception {
 //		TupleReader test = new TupleReader("Boats AS B");
 //		Tuple tuple = test.readNextTuple();
@@ -54,14 +62,37 @@ public class TupleWriter {
 //		}
 //
 //	}
+=======
+		public static void main(String[] args) throws Exception {
+			TupleReader test = new TupleReader("Boats AS B");
+			Tuple tuple = test.readNextTuple();
+	
+			TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
+			while (true) {
+				if(!write.writeTuple(tuple)) {
+					break;
+				}
+				tuple = test.readNextTuple();
+			}
+	
+		}
 
+>>>>>>> 3361e5ee4c64d1c6567fc75cd72e62540299c96f
+
+	/** 
+	 * This method is a constructor which is to
+	 * init file path and related field
+	 * 
+	 * @param path absolute lath of file
+	 * 
+	 */
 
 	public TupleWriter(String path) {
 
 		StringBuilder output = new StringBuilder(path);
 
 		/**********************init for binary file********************************/
-		
+
 		empty = true;
 		bufferPosition = 0;
 		tupleCounter = 0;
@@ -70,6 +101,7 @@ public class TupleWriter {
 		/*create a file and open file channel*/
 
 		File file = new File(output.toString());
+		file.delete();
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -94,6 +126,7 @@ public class TupleWriter {
 		output.append("_humanreadable");
 
 		file = new File(output.toString());
+		file.delete();
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
@@ -113,26 +146,38 @@ public class TupleWriter {
 
 	}
 
-	//write tuples
+	
+	/**
+	 * This method is to write tuple to both humanreadable file & binary file
+	 * 
+	 * @return boolean whether we still have tuple to write or not
+	 */
 	public boolean writeTuple(Tuple tuple) throws IOException {
-
-
 		writeReadableTuple(tuple);
 		return  writeBinaryTuple(tuple);
 
 	}
 
-	public void writeReadableTuple(Tuple tuple) throws IOException {
+	
+	/**
+	 * This method is to write tuple to humanreadable file 
+	 * 
+	 */
+	private void writeReadableTuple(Tuple tuple) throws IOException {
 
-		//如果为null 返回false
 		if (tuple != null) {
 			tuple.printData();
 			humanbw.write(tuple.getTupleData().toString() + '\n');
-		}
-
+		} 
 	}
 
-	public boolean writeBinaryTuple(Tuple tuple) throws IOException {
+	
+	/**
+	 * This method is to write tuple to binary file
+	 * 
+	 * @return boolean whether we still have tuple to write or not
+	 */
+	private boolean writeBinaryTuple(Tuple tuple) throws IOException {
 
 		/*the end of write operation, the last page*/
 		if (tuple == null) {
@@ -142,13 +187,11 @@ public class TupleWriter {
 				buffer.putInt(4, tupleCounter);
 				fcout.write(buffer);
 
-
 				empty = true;
 				bufferPosition = 0;
 				tupleCounter =0;
 			}	
 
-			//要在这里close吗？
 			close();
 			return false;
 		}
@@ -170,15 +213,13 @@ public class TupleWriter {
 		}
 
 
-		/*check the space of buffer*/
-		//if (tupleCounter != maxTupleNumber) {
-
 		/*write tuple to buffer*/
 		for (int i=0; i<attributeNumber; i++) {
 			buffer.putInt(bufferPosition, (int)tuple.getData()[i]);
 			bufferPosition +=4;
 		}
 		tupleCounter +=1;
+		/*check the space of buffer*/
 		if (tupleCounter == maxTupleNumber) {
 			/*zero out the rest space in buffer and flush it to channel*/
 			clear(bufferPosition);
@@ -188,14 +229,7 @@ public class TupleWriter {
 			bufferPosition = 0;
 			tupleCounter =0;
 		}
-
-		//} else {
-
-
-
-		//}
-
-
+		
 		return true;
 	}
 
@@ -216,6 +250,7 @@ public class TupleWriter {
 
 	private void clear(int bufferPosition){
 
+		/*reset the position in buffer*/
 		buffer.clear();
 
 		int times = buffer.limit() - bufferPosition;
@@ -223,6 +258,7 @@ public class TupleWriter {
 			buffer.put(bufferPosition, (byte) 0);
 			bufferPosition++;
 		}
+		
 
 	}
 
