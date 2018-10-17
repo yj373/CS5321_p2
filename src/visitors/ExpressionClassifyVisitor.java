@@ -215,7 +215,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 
-	
+	/** visit the GreaterThanEquals expression
+	 *  @param arg0: the GreaterThanEquas expression
+	 */
     @Override
 	public void visit(GreaterThanEquals arg0) {
 		// if left node and right node are both columns
@@ -271,6 +273,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 	
+    /** visit the MinorThan expression
+	 *  @param arg0: the MinorThan expression
+	 */
 	@Override
 	public void visit(MinorThan arg0) {
 		// if left node and right node are both columns
@@ -326,6 +331,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 
+	/** visit the MinorThanEquals expression
+	 *  @param arg0: the MinorThanEquals expression
+	 */
 	@Override
 	public void visit(MinorThanEquals arg0) {
 		// if left node and right node are both columns
@@ -381,6 +389,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 	
+	/** visit the NotEqualsTo expression
+	 *  @param arg0: the NotEqualsTo expression
+	 */
 	@Override
 	public void visit(NotEqualsTo arg0) {
 		// if left node and right node are both columns
