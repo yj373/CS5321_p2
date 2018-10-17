@@ -9,8 +9,9 @@ import java.util.LinkedList;
 import data.Dynamic_properties;
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
+import util.TupleWriter;
 import visitors.BasicExpressionVisitor;
-
+import util.TupleWriter;
 /**
  * parent class of every operator
  * 
@@ -81,11 +82,12 @@ public abstract class Operator {
 		reset();
 	}
 
-	/**
-	 * Write all Tuples to corresponding .txt file
+	
+	/**以前的dump()
+	 * Write all Tuples to corresponding file
 	 * 
-	 * @param index index of .txt file
-	 */
+	 * @param index index of file
+	 *
 
 	public void dump(int index) {
 		reset();
@@ -107,7 +109,7 @@ public abstract class Operator {
 		}
 		reset();
 	}
-	
+	*/
 	public boolean judgeExpression(Tuple tuple) {
 		BasicExpressionVisitor bev = new BasicExpressionVisitor(tuple);
 		exp.accept(bev);
@@ -115,5 +117,48 @@ public abstract class Operator {
 		return res;
 	}
 
+	
+	
+	/**
+	 * Write all Tuples to corresponding file
+	 * 
+	 * @param index index of file
+	 * @throws IOException 
+	 */
+
+	
+	public void dump(int index) throws IOException {
+		reset();
+		
+		TupleWriter write = new TupleWriter(index);
+		
+		while (true) {
+			Tuple tuple = getNextTuple();
+			if (!write.writeTuple(index, tuple)) {
+				break;
+			}
+		}
+		reset();
+	}
+		
+		
+//		String output_path = Dynamic_properties.outputPath;
+//		new File (output_path).mkdirs();
+//		File file = new File(output_path + "/query" + index);
+//		try {
+//			BufferedWriter bw = new BufferedWriter(new FileWriter(file));
+//			Tuple tuple = getNextTuple();
+//			while (tuple != null) {
+//				tuple.printData();
+//				bw.write(tuple.getTupleData().toString() + '\n');
+//				tuple = getNextTuple();
+//			}
+//			bw.close();   
+//		}catch(IOException e) {
+//			e.printStackTrace();
+//			e.getMessage();
+//		}
+//		reset();
+//	}
 
 }
