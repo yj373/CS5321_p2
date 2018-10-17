@@ -134,7 +134,8 @@ public abstract class Operator {
 		
 		while (true) {
 			Tuple tuple = getNextTuple();
-			if (!write.writeTuple(index, tuple)) {
+			
+			if (!write.writeTuple(tuple)) {
 				break;
 			}
 		}
