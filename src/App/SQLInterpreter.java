@@ -2,6 +2,7 @@ package App;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 import data.Dynamic_properties;
 import net.sf.jsqlparser.parser.CCJSqlParser;
@@ -75,9 +76,10 @@ public class SQLInterpreter {
 	 * 
 	 * @param index index of query
 	 * @param root  root node of query tree
+	 * @throws IOException 
 	 */
 
-	public static void writeToFile (int index, Operator root) {
+	public static void writeToFile (int index, Operator root) throws IOException {
 		root.dump(index);
 		System.out.println("end");
 	}
