@@ -1,6 +1,13 @@
 package util;
 
-
+/**
+ * This class provides function:
+ * 
+ * read binary input file 
+ * 
+ * @author Xiaoxing Yan
+ *
+ */
 
 import java.io.File;
 
@@ -44,7 +51,13 @@ public class TupleReader {
 	private LinkedList<String> attributes;
 
 
-	/*initilization*/
+	/** 
+	 * This method is a constructor which is to
+	 * init file path and related field
+	 * 
+	 * @param tableInfo decide which table we want to read
+	 * 
+	 */
 	public TupleReader (String tableInfo) {
 		try {
 			empty = true;
@@ -52,7 +65,6 @@ public class TupleReader {
 			bufferPosition = 0;
 			pageNumber = 0;
 			this.tableInfo = tableInfo;
-			System.out.println("这里的table参数是"+tableInfo);
 			/*create a new buffer with size 4096 bytes*/ 
 			buffer = ByteBuffer.allocate(size); 
 			/*open file channel*/
@@ -65,13 +77,16 @@ public class TupleReader {
 
 
 
+	/**
+	 * This method is to init file channel
+	 * 
+	 * @param tableInfo
+	 * @throws Exception
+	 */
 	private void initFileChannel (String tableInfo) throws Exception {
 
-		//get the path of file -- correct later
-		//String infile = "/Users/yanxiaoxing/Desktop/CS4321/project 2/samples/input/db/data/Boats";  
 
 		String[] aimTable = tableInfo.split("\\s+");
-		//这个是处理什么corner case的
 		if (aimTable.length<1) {
 			tableName = null;
 		}
@@ -106,18 +121,22 @@ public class TupleReader {
 	*/
 
 
+	/**
+	 * read the next tuple from buffer 
+	 * 
+	 * @return tuple
+	 * @throws Exception
+	 */
 	public Tuple readNextTuple() throws Exception {
 
 		/*if buffer is empty, it needs to load another page*/
 		if (empty) {
 			int r = readFromChannel();
-			// read方法返回读取的字节数，可能为零，如果该通道已到达流的末尾，则返回-1  
 			/*if we have reached the end of file*/
 			if (r == -1) {
 				close();
 				resetBuffer();
 				resetFileChannel();
-				System.out.println("到了文件末尾了");
 				return null;  
 			} 
 			empty = false;
@@ -132,13 +151,7 @@ public class TupleReader {
 			data[i] = (long)buffer.getInt(bufferPosition);
 			bufferPosition += 4;
 		}
-
-//		//test
-//		for (long num:data) {
-//			System.out.print(num+" ");
-//		}
-//		System.out.println();
-		
+	
 		/*create a new tuple*/
 		Tuple tuple = new Tuple(data, tableAliase, attributes);
 		tupleNumber--;
@@ -154,7 +167,7 @@ public class TupleReader {
 	}
 
 	/**
-	 * check the buffer state:
+	 * this method is to check the buffer state:
 	 * 
 	 * to read metadata
 	 * or to read tuple
@@ -172,7 +185,7 @@ public class TupleReader {
 
 
 	/**
-	 * load one page to buffer 
+	 * this method id to load one page to buffer 
 	 * 
 	 * 
 	 * @return r
@@ -184,27 +197,26 @@ public class TupleReader {
 			initFileChannel (tableInfo);
 		}
 		pageNumber+=1;
-		System.out.println("第"+pageNumber+"页");
+		//System.out.println("第"+pageNumber+"页");
 
-		// clear方法重设缓冲区，使它可以接受读入的数据  
+		/* clear buffer to accept new data*/
 		buffer.clear();  
+		/*set the buffer position to zero*/
+		bufferPosition = 0;
 		
-		System.out.println("读之前这里的file position是"+filePosition);
+		//System.out.println("读之前这里的file position是"+filePosition);
 
 		fcin.position(filePosition);
 		/*Reads a sequence of bytes from this channel into the given buffer.*/
 		int r = fcin.read(buffer); 
-
-
-
 		/*record the next position*/
 		filePosition = fcin.position();
-		System.out.println("读之后这里的file position是"+filePosition);
+		
+		//System.out.println("读之后这里的file position是"+filePosition);
 
-		/*set the buffer position to zero*/
-		buffer.flip();
-		bufferPosition = 0;//重新读进来以后人为的也要重置 啊！！！！
-
+		
+		//buffer.flip();
+	
 		return r;
 
 	}
@@ -212,7 +224,7 @@ public class TupleReader {
 
 
 	/**
-	 * close the file channel
+	 * this method is to close the file channel
 	 * 
 	 * @throws IOException
 	 */
