@@ -5,6 +5,12 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import visitors.LogicalPlanVisitor;
 import visitors.PhysicalPlanVisitor;
 
+/**
+ * This class is a logical DuplicateElimination operator to store DISTINCT info from
+ * JSql parser.
+ * 
+ * @author Ruoxuan Xu
+ */
 public class LogicalDuplicateEliminationOperator extends LogicalOperator{
 	private Tuple prevTuple;
 	private PlainSelect plainSelect;
@@ -17,15 +23,15 @@ public class LogicalDuplicateEliminationOperator extends LogicalOperator{
 	 * initialize related fields
 	 * 
 	 * @param plainSelect  PlainSelect of query
-	 * @param op  pass in child operator
+	 * @param op  set as left child operator
 	 * 
 	 */
 	
 
 	public LogicalDuplicateEliminationOperator(PlainSelect ps, LogicalOperator op) {
-		if (ps.getDistinct()!=null) {
+		if (ps.getDistinct() != null) {
 			workState = true;
-		}else {
+		} else {
 			workState = false;
 		}
 		this.leftChild = op;
