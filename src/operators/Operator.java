@@ -130,7 +130,12 @@ public abstract class Operator {
 	public void dump(int index) throws IOException {
 		reset();
 		
-		TupleWriter write = new TupleWriter(index);
+		/*construct output path*/
+		StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
+		output.append("/query");	
+		output.append(String.valueOf(index));
+		
+		TupleWriter write = new TupleWriter(output.toString());
 		
 		while (true) {
 			Tuple tuple = getNextTuple();
@@ -138,6 +143,7 @@ public abstract class Operator {
 			if (!write.writeTuple(tuple)) {
 				break;
 			}
+			
 		}
 		reset();
 	}

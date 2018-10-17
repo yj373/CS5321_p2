@@ -36,7 +36,6 @@ public class TupleWriter {
 	private static int metasize = 8;
 	/*record the state of meta data initilization*/
 	private boolean checkInit;
-
 	private BufferedWriter humanbw;
 
 
@@ -46,33 +45,29 @@ public class TupleWriter {
 		TupleReader test = new TupleReader("Boats AS B");
 		Tuple tuple = test.readNextTuple();
 
-		TupleWriter write = new TupleWriter(1);
+		TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
 		while (true) {
 			if(!write.writeTuple(tuple)) {
 				break;
 			}
 			tuple = test.readNextTuple();
 		}
-				
-		}
-	
+
+	}
 
 
-	//constructor
-	//input: index of file 
-	public TupleWriter(int index) {
+	public TupleWriter(String path) {
 
+		StringBuilder output = new StringBuilder(path);
 
 		/**********************init for binary file********************************/
+		
 		empty = true;
 		bufferPosition = 0;
 		tupleCounter = 0;
 		checkInit= false;
 
 		/*create a file and open file channel*/
-		StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
-		output.append("/query");	
-		output.append(String.valueOf(index));
 
 		File file = new File(output.toString());
 		if (!file.exists()) {
@@ -97,7 +92,7 @@ public class TupleWriter {
 
 		/**********************init for human readable file********************************/
 		output.append("_humanreadable");
-		
+
 		file = new File(output.toString());
 		if (!file.exists()) {
 			try {
@@ -121,14 +116,14 @@ public class TupleWriter {
 	//write tuples
 	public boolean writeTuple(Tuple tuple) throws IOException {
 
-		
+
 		writeReadableTuple(tuple);
 		return  writeBinaryTuple(tuple);
 
 	}
 
 	public void writeReadableTuple(Tuple tuple) throws IOException {
-		
+
 		//如果为null 返回false
 		if (tuple != null) {
 			tuple.printData();
@@ -146,8 +141,8 @@ public class TupleWriter {
 				clear(bufferPosition);
 				buffer.putInt(4, tupleCounter);
 				fcout.write(buffer);
-				
-				
+
+
 				empty = true;
 				bufferPosition = 0;
 				tupleCounter =0;
@@ -178,21 +173,21 @@ public class TupleWriter {
 		/*check the space of buffer*/
 		//if (tupleCounter != maxTupleNumber) {
 
-			/*write tuple to buffer*/
-			for (int i=0; i<attributeNumber; i++) {
-				buffer.putInt(bufferPosition, (int)tuple.getData()[i]);
-				bufferPosition +=4;
-			}
-			tupleCounter +=1;
-			if (tupleCounter == maxTupleNumber) {
-				/*zero out the rest space in buffer and flush it to channel*/
-				clear(bufferPosition);
-				fcout.write(buffer);
-				
-				empty = true;
-				bufferPosition = 0;
-				tupleCounter =0;
-			}
+		/*write tuple to buffer*/
+		for (int i=0; i<attributeNumber; i++) {
+			buffer.putInt(bufferPosition, (int)tuple.getData()[i]);
+			bufferPosition +=4;
+		}
+		tupleCounter +=1;
+		if (tupleCounter == maxTupleNumber) {
+			/*zero out the rest space in buffer and flush it to channel*/
+			clear(bufferPosition);
+			fcout.write(buffer);
+
+			empty = true;
+			bufferPosition = 0;
+			tupleCounter =0;
+		}
 
 		//} else {
 
@@ -220,7 +215,7 @@ public class TupleWriter {
 	 */
 
 	private void clear(int bufferPosition){
-		
+
 		buffer.clear();
 
 		int times = buffer.limit() - bufferPosition;
@@ -243,7 +238,7 @@ public class TupleWriter {
 			if(fcout != null) {
 				fcout.close();
 			}
-			
+
 			if (humanbw != null) {
 				humanbw.close();
 			}
