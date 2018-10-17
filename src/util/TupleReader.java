@@ -31,6 +31,8 @@ public class TupleReader {
 	private FileChannel fcin;
 	/*the ith page we are reading in this file*/
 	private int pageNumber;
+	/*the size of buffer*/
+	private static int size = 4096;
 
 	/*for constructing tuple in this table*/
 	private String tableInfo;
@@ -52,7 +54,7 @@ public class TupleReader {
 			this.tableInfo = tableInfo;
 			System.out.println("这里的table参数是"+tableInfo);
 			/*create a new buffer with size 4096 bytes*/ 
-			buffer = ByteBuffer.allocate(4096); 
+			buffer = ByteBuffer.allocate(size); 
 			/*open file channel*/
 			initFileChannel (tableInfo);
 		} catch (Exception e) {
@@ -113,6 +115,8 @@ public class TupleReader {
 			/*if we have reached the end of file*/
 			if (r == -1) {
 				close();
+				resetBuffer();
+				resetFileChannel();
 				System.out.println("到了文件末尾了");
 				return null;  
 			} 
@@ -176,6 +180,7 @@ public class TupleReader {
 	 */
 	private int readFromChannel() throws Exception  {
 		if (!fcin.isOpen()) {
+			pageNumber = 0;
 			initFileChannel (tableInfo);
 		}
 		pageNumber+=1;
