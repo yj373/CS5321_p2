@@ -48,37 +48,20 @@ public class TupleWriter {
 
 
 	//for test
-<<<<<<< HEAD
-//	public static void main(String[] args) throws Exception {
-//		TupleReader test = new TupleReader("Boats AS B");
-//		Tuple tuple = test.readNextTuple();
-//
-//		TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
-//		while (true) {
-//			if(!write.writeTuple(tuple)) {
-//				break;
-//			}
-//			tuple = test.readNextTuple();
-//		}
-//
-//	}
-=======
-		public static void main(String[] args) throws Exception {
-			TupleReader test = new TupleReader("Boats AS B");
-			Tuple tuple = test.readNextTuple();
-	
-			TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
-			while (true) {
-				if(!write.writeTuple(tuple)) {
-					break;
-				}
-				tuple = test.readNextTuple();
+
+	public static void main(String[] args) throws Exception {
+		TupleReader test = new TupleReader("Boats AS B");
+		Tuple tuple = test.readNextTuple();
+
+		TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
+		while (true) {
+			if(!write.writeTuple(tuple)) {
+				break;
 			}
-	
+			tuple = test.readNextTuple();
 		}
 
->>>>>>> 3361e5ee4c64d1c6567fc75cd72e62540299c96f
-
+	}
 	/** 
 	 * This method is a constructor which is to
 	 * init file path and related field
