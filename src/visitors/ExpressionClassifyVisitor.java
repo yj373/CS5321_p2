@@ -121,14 +121,25 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			TablePair key = new TablePair(tableAlias1, tableAlias2);
-			Expression value = joinConditions.get(key);
-			if (value != null) {
-				joinConditions.put(key, new AndExpression(value, 
-					new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression())));
-			} else {
-				joinConditions.put(key, 
-					new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression()));
+			if (tableAlias1.equals(tableAlias2)) {
+				Expression prevCondi = scanConditions.get(tableAlias1);
+				if (prevCondi == null) {
+					scanConditions.put(tableAlias1, 
+							new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression()));
+				} else {
+					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
+							new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression())));
+				}
+			} else {			
+				TablePair key = new TablePair(tableAlias1, tableAlias2);
+				Expression value = joinConditions.get(key);
+				if (value != null) {
+					joinConditions.put(key, new AndExpression(value, 
+						new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression())));
+				} else {
+					joinConditions.put(key, 
+						new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression()));
+				}
 			}
 		} else {
 		// In this case, it must have one side to be column and the other to be number
@@ -166,14 +177,25 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			TablePair key = new TablePair(tableAlias1, tableAlias2);
-			Expression value = joinConditions.get(key);
-			if (value != null) {
-				joinConditions.put(key, new AndExpression(value, 
-					new GreaterThanEquals(arg0.getLeftExpression(), arg0.getRightExpression())));
-			} else {
-				joinConditions.put(key, 
-					new GreaterThanEquals(arg0.getLeftExpression(), arg0.getRightExpression()));
+			if (tableAlias1.equals(tableAlias2)) {
+				Expression prevCondi = scanConditions.get(tableAlias1);
+				if (prevCondi == null) {
+					scanConditions.put(tableAlias1, 
+							new GreaterThanEquals(arg0.getLeftExpression(), arg0.getRightExpression()));
+				} else {
+					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
+							new GreaterThanEquals(arg0.getLeftExpression(), arg0.getRightExpression())));
+				}
+			} else {		
+				TablePair key = new TablePair(tableAlias1, tableAlias2);
+				Expression value = joinConditions.get(key);
+				if (value != null) {
+					joinConditions.put(key, new AndExpression(value, 
+						new GreaterThanEquals(arg0.getLeftExpression(), arg0.getRightExpression())));
+				} else {
+					joinConditions.put(key, 
+						new GreaterThanEquals(arg0.getLeftExpression(), arg0.getRightExpression()));
+				}
 			}
 		} else {
 		// In this case, it must have one side to be column and the other to be number
@@ -210,14 +232,25 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			TablePair key = new TablePair(tableAlias1, tableAlias2);
-			Expression value = joinConditions.get(key);
-			if (value != null) {
-				joinConditions.put(key, new AndExpression(value, 
-					new MinorThan(arg0.getLeftExpression(), arg0.getRightExpression())));
+			if (tableAlias1.equals(tableAlias2)) {
+				Expression prevCondi = scanConditions.get(tableAlias1);
+				if (prevCondi == null) {
+					scanConditions.put(tableAlias1, 
+							new MinorThan(arg0.getLeftExpression(), arg0.getRightExpression()));
+				} else {
+					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
+							new MinorThan(arg0.getLeftExpression(), arg0.getRightExpression())));
+				}
 			} else {
-				joinConditions.put(key, 
-					new MinorThan(arg0.getLeftExpression(), arg0.getRightExpression()));
+				TablePair key = new TablePair(tableAlias1, tableAlias2);
+				Expression value = joinConditions.get(key);
+				if (value != null) {
+					joinConditions.put(key, new AndExpression(value, 
+						new MinorThan(arg0.getLeftExpression(), arg0.getRightExpression())));
+				} else {
+					joinConditions.put(key, 
+						new MinorThan(arg0.getLeftExpression(), arg0.getRightExpression()));
+				}
 			}
 		} else {
 		// In this case, it must have one side to be column and the other to be number
@@ -254,14 +287,25 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			TablePair key = new TablePair(tableAlias1, tableAlias2);
-			Expression value = joinConditions.get(key);
-			if (value != null) {
-				joinConditions.put(key, new AndExpression(value, 
-					new MinorThanEquals(arg0.getLeftExpression(), arg0.getRightExpression())));
-			} else {
-				joinConditions.put(key, 
-					new MinorThanEquals(arg0.getLeftExpression(), arg0.getRightExpression()));
+			if (tableAlias1.equals(tableAlias2)) {
+				Expression prevCondi = scanConditions.get(tableAlias1);
+				if (prevCondi == null) {
+					scanConditions.put(tableAlias1, 
+							new MinorThanEquals(arg0.getLeftExpression(), arg0.getRightExpression()));
+				} else {
+					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
+							new MinorThanEquals(arg0.getLeftExpression(), arg0.getRightExpression())));
+				}
+			} else {		
+				TablePair key = new TablePair(tableAlias1, tableAlias2);
+				Expression value = joinConditions.get(key);
+				if (value != null) {
+					joinConditions.put(key, new AndExpression(value, 
+						new MinorThanEquals(arg0.getLeftExpression(), arg0.getRightExpression())));
+				} else {
+					joinConditions.put(key, 
+						new MinorThanEquals(arg0.getLeftExpression(), arg0.getRightExpression()));
+				}
 			}
 		} else {
 		// In this case, it must have one side to be column and the other to be number
@@ -298,14 +342,25 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			TablePair key = new TablePair(tableAlias1, tableAlias2);
-			Expression value = joinConditions.get(key);
-			if (value != null) {
-				joinConditions.put(key, new AndExpression(value, 
-					new NotEqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
+			if (tableAlias1.equals(tableAlias2)) {
+				Expression prevCondi = scanConditions.get(tableAlias1);
+				if (prevCondi == null) {
+					scanConditions.put(tableAlias1, 
+							new NotEqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
+				} else {
+					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
+							new NotEqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
+				}
 			} else {
-				joinConditions.put(key, 
-					new NotEqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
+				TablePair key = new TablePair(tableAlias1, tableAlias2);
+				Expression value = joinConditions.get(key);
+				if (value != null) {
+					joinConditions.put(key, new AndExpression(value, 
+						new NotEqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
+				} else {
+					joinConditions.put(key, 
+						new NotEqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
+				}
 			}
 		} else {
 		// In this case, it must have one side to be column and the other to be number
