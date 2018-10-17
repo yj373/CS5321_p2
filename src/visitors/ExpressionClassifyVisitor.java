@@ -29,18 +29,62 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * The class of ExpressionClassifierVisitor is a visitor to visit query expressions parsed
+ * by JSqlParser, and classify all these conditions as join conditions and scan conditions.
+ * Join conditions should be examined by JoinOperator, while Scan conditions should be examined
+ * by the ScanOperator. The query expressions include several types below:
+ * 
+ *  1. <sub expression> AND <sub expression>
+ *  2. S.A = 10 (>=, <=, >, <)
+ *  3. Sailors.A = Sailors.B (>=, <=, >, <)
+ *  4. Sailors.A = Reserves.D (>=, <=, >, <)
+ * 
+ * For the 1st case, ExpressionClassifierVisitor will visit sub expression respectively.
+ * 
+ * For the 2nd case and the 3rd case, it should be classified as scan conditions, which can be
+ * examined directly when a tuple is loaded into the ScanOperator.
+ * 
+ * For the 3rd case, it should be classified as join conditions, which can only be checked in 
+ * the JoinOperator which includes both tables of Sailors and Reserves.
+ * 
+ * This class puts all the scan conditions into a Map <TableAlias, Expression>, as every expression
+ * only relates to one table; all the joinConditions are put into a Map <TablePair, Expression>, 
+ * as all the join conditions involve two tables as a pair.
+ * 
+ * @author Ruoxuan Xu
+ *
+ */
+
 public class ExpressionClassifyVisitor implements ExpressionVisitor{
+	
+	/** the map to store all joinCondtions extracted from JSqlParser */
 	private Map<TablePair, Expression> joinConditions = new HashMap<>();
+	
+	/** the map to store all scanCondtions extracted from JSqlParser */
 	private Map<String, Expression> scanConditions = new HashMap<>();
 	
+	/**
+	 * get the map between all table aliases and their relative scan conditions.
+	 * @return scan conditions
+	 */
 	public Map<String, Expression> getScanConditions() {
 		return scanConditions;
 	}
 	
+	/**
+	 * get the map between all table pairs and their respective join conditions.
+	 * @return join conditions
+	 */
 	public Map<TablePair, Expression> getJoinConditions() {
 		return joinConditions;
 	}
 	
+	/**
+	 * The start point of this function: visit the root of Expression parsed by 
+	 * JSqlParser.
+	 * @param ps: the directed output from JSalParser.
+	 */
 	public void classify(PlainSelect ps) {
 		if (ps != null) {
 			Expression origin = ps.getWhere();
@@ -50,10 +94,12 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}
 	}
 
-	
+	/** visit the EqualsTo expression
+	 *  @param arg0: the EqualsTo expression
+	 */
 	@Override
 	public void visit(EqualsTo arg0) {
-		// if left node and right node are both columns
+		/* if left node and right node are both columns */
 		if ((arg0.getLeftExpression() instanceof Column) && 
 				(arg0.getRightExpression() instanceof Column)) {
 			Column column1 = (Column)arg0.getLeftExpression();
@@ -64,7 +110,7 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			// corner case: if the two columns are for the same tuple, it goes to scan conditions
+			/* corner case: if the two columns are for the same table, it goes to scan conditions*/
 			if (tableAlias1.equals(tableAlias2)) {
 				Expression prevCondi = scanConditions.get(tableAlias1);
 				if (prevCondi == null) {
@@ -75,6 +121,7 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 							new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
 				}
 			} else {
+		    /* else the two columns are of different table, thus it should be put into join conditions */
 				TablePair key = new TablePair(tableAlias1, tableAlias2);
 				Expression value = joinConditions.get(key);
 				if (value != null) {
@@ -87,7 +134,7 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			}
 			
 		} else {
-		// In this case, it must have one side to be column and the other to be number
+		/* In this case, it must have one side to be column and the other to be number */
 			Column column;
 			if (arg0.getLeftExpression() instanceof Column) {
 			    column = (Column)arg0.getLeftExpression();
@@ -108,9 +155,13 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 	
+	
+	/** visit the GreaterThan expression
+	 *  @param arg0: the GreaterThan expression
+	 */
 	@Override
 	public void visit(GreaterThan arg0) {
-		// if left node and right node are both columns
+		/* if left node and right node are both columns */
 		if ((arg0.getLeftExpression() instanceof Column) && 
 				(arg0.getRightExpression() instanceof Column)) {
 			Column column1 = (Column)arg0.getLeftExpression();
@@ -120,7 +171,7 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			Column column2 = (Column)arg0.getRightExpression();
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
-			
+			/* corner case: if the two columns are for the same table, it goes to scan conditions*/
 			if (tableAlias1.equals(tableAlias2)) {
 				Expression prevCondi = scanConditions.get(tableAlias1);
 				if (prevCondi == null) {
@@ -130,7 +181,8 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
 							new GreaterThan(arg0.getLeftExpression(), arg0.getRightExpression())));
 				}
-			} else {			
+			} else {
+			/* else the two columns are of different table, thus it should be put into join conditions */
 				TablePair key = new TablePair(tableAlias1, tableAlias2);
 				Expression value = joinConditions.get(key);
 				if (value != null) {
@@ -142,7 +194,7 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 				}
 			}
 		} else {
-		// In this case, it must have one side to be column and the other to be number
+		/* In this case, it must have one side to be column and the other to be number */
 			Column column;
 			if (arg0.getLeftExpression() instanceof Column) {
 			    column = (Column)arg0.getLeftExpression();
@@ -163,7 +215,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 
-	
+	/** visit the GreaterThanEquals expression
+	 *  @param arg0: the GreaterThanEquas expression
+	 */
     @Override
 	public void visit(GreaterThanEquals arg0) {
 		// if left node and right node are both columns
@@ -219,6 +273,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 	
+    /** visit the MinorThan expression
+	 *  @param arg0: the MinorThan expression
+	 */
 	@Override
 	public void visit(MinorThan arg0) {
 		// if left node and right node are both columns
@@ -274,6 +331,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 
+	/** visit the MinorThanEquals expression
+	 *  @param arg0: the MinorThanEquals expression
+	 */
 	@Override
 	public void visit(MinorThanEquals arg0) {
 		// if left node and right node are both columns
@@ -329,6 +389,9 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 		}		
 	}
 	
+	/** visit the NotEqualsTo expression
+	 *  @param arg0: the NotEqualsTo expression
+	 */
 	@Override
 	public void visit(NotEqualsTo arg0) {
 		// if left node and right node are both columns
