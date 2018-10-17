@@ -91,6 +91,7 @@ public class TupleReader {
 
 	}
 
+	/**
 	//main method to test
 	public static void main(String[] args) throws Exception {
 		TupleReader test = new TupleReader("Boats AS B");
@@ -100,6 +101,7 @@ public class TupleReader {
 		//test.readNextTuple();
 		
 	}
+	*/
 
 
 	public Tuple readNextTuple() throws Exception {
