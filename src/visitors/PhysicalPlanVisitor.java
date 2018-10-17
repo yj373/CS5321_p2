@@ -19,20 +19,34 @@ import operators.Operator;
 import operators.ProjectOperator;
 import operators.ScanOperator;
 import operators.SortOperator;
-
+/**
+ * Visit the logical plan and construct a physical operator 
+ * query plan
+ * @author yixuanjiang
+ *
+ */
 public class PhysicalPlanVisitor {
 	private Operator root;
 	private LinkedList<Operator> childList;
-	
+	//Constructor
 	public PhysicalPlanVisitor() {
 		this.childList = new LinkedList<Operator>();
 	}
 
-
+	
+	/**
+	 * Get the physical query plan
+	 * @return the root operator of the physical plan
+	 */
 	public Operator getPhysicalRoot() {
 		return root;
 	}
 	
+	/**
+	 * Once visit a logical scan oprator, construct a 
+	 * physical scan operator and add it to the child list
+	 * @param scOp: logical scan operator
+	 */
 	public void visit(LogicalScanOperator scOp) {
 		String tableName = scOp.getTableName();
 		String tableAliase = scOp.getTableAliase();
@@ -42,6 +56,14 @@ public class PhysicalPlanVisitor {
 		root = scan;
 	}
 	
+	/**
+	 * Once visit a logical join operator, visit its left child and
+	 * right child first. After the child list is updated, construct a 
+	 * physical join operator. The first element of the child list is the 
+	 * left child of the join operator, while the second element is
+	 * the right child.
+	 * @param jnOp: logical join operator
+	 */
 	public void visit(LogicalJoinOperator jnOp) {
 		LogicalOperator op1 = jnOp.getLeftChild();
 		if (op1 != null) {
@@ -52,20 +74,24 @@ public class PhysicalPlanVisitor {
 			op2.accept(this);
 		}
 		Expression exp = jnOp.getCondition();
-		Operator left = childList.pollFirst();
-		Operator right = childList.pollFirst();
+		Operator right = childList.pollLast();
+		Operator left = childList.pollLast();
 		JoinOperator join = new JoinOperator(left, right, exp);
 		childList.add(join);
 		root = join;
 	}
 	
+	/**
+	 * Once visit a logical project 
+	 * @param operator: logical project operator
+	 */
 	public void visit(LogicalProjectOperator operator) {
 		LogicalOperator op1 = operator.getLeftChild();
 		if (op1 != null) {
 			op1.accept(this);
 		}
 		List<SelectItem> sI = operator.getSelectItems();
-		Operator left = childList.pollFirst();
+		Operator left = childList.pollLast();
 		ProjectOperator project = new ProjectOperator(sI, left);
 		childList.add(project);
 		root = project;
@@ -77,7 +103,7 @@ public class PhysicalPlanVisitor {
 			op1.accept(this);
 		}
 		PlainSelect sI = operator.getPlainSelect();
-		Operator left = childList.pollFirst();
+		Operator left = childList.pollLast();
 		SortOperator sort = new SortOperator(sI, left);
 		childList.add(sort);
 		root = sort;
@@ -89,7 +115,7 @@ public class PhysicalPlanVisitor {
 			op1.accept(this);
 		}
 		PlainSelect sI = operator.getPlainSelect();
-		Operator left = childList.pollFirst();
+		Operator left = childList.pollLast();
 		ProjectOperator distinct = new ProjectOperator(sI, left);
 		childList.add(distinct);
 		root = distinct;

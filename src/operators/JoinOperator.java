@@ -36,7 +36,19 @@ public class JoinOperator extends Operator{
 	 * @return the Tuple joined from the leftChild Operator and rightChild Operator.
 	 */
 	@Override
-	public Tuple getNextTuple() {		
+	public Tuple getNextTuple() {
+		Tuple t = getNextPureTuple();
+		if(t!=null) {
+			while(!judgeExpression(t)) {
+				t = getNextPureTuple();
+				if (t==null) break;
+			}
+		}		
+		return t;
+		
+	}
+	
+	private Tuple getNextPureTuple() {		
 		/* Corner Case: when there are less than two operators under join operator.*/
 		Operator left = getLeftChild();
 		Operator right = getRightChild();
@@ -87,10 +99,10 @@ public class JoinOperator extends Operator{
 	    if ( currLeftTup != null && currRightTup != null) {
 	    	Tuple res = concatenate(currLeftTup, currRightTup);
 	    	//return judgeExpression(res) ? res : this.getNextTuple();
-	    	if (judgeExpression(res)) return res;
-	    	else return this.getNextTuple();
+	    	return res;
 	    }
-		return this.getNextTuple();
+		return this.getNextPureTuple();
+	    //return null;
 	}
 	
 	/**

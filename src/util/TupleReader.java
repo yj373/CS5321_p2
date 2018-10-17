@@ -93,6 +93,7 @@ public class TupleReader {
 
 	}
 
+	/**
 	//main method to test
 	public static void main(String[] args) throws Exception {
 		TupleReader test = new TupleReader("Boats AS B");
@@ -102,6 +103,7 @@ public class TupleReader {
 		//test.readNextTuple();
 		
 	}
+	*/
 
 
 	public Tuple readNextTuple() throws Exception {
@@ -177,6 +179,9 @@ public class TupleReader {
 	 * @throws Exception
 	 */
 	private int readFromChannel() throws Exception  {
+		if (!fcin.isOpen()) {
+			initFileChannel (tableInfo);
+		}
 		pageNumber+=1;
 		System.out.println("第"+pageNumber+"页");
 

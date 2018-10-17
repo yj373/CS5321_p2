@@ -1,4 +1,5 @@
 package visitors;
+import java.util.HashSet;
 import java.util.Map;
 
 
@@ -41,6 +42,7 @@ public class LogicalPlanVisitor {
 		}
 		
 		Expression expr = null;
+		HashSet<TablePair> removeList = new HashSet<TablePair>();
 		for(TablePair tbpir: joinConditions.keySet()) {
 			if (jnOp.getAllTable().contains(tbpir.first()) && jnOp.getAllTable().contains(tbpir.second())) {
 				if (expr == null) {
@@ -48,8 +50,11 @@ public class LogicalPlanVisitor {
 				} else {
 					expr = new AndExpression(expr, joinConditions.get(tbpir));
 				}
-			    joinConditions.remove(tbpir);
+			    removeList.add(tbpir);
 			}
+		}
+		for (TablePair tbpir: removeList) {
+			joinConditions.remove(tbpir);
 		}
 		jnOp.setExpression(expr);		
 	}

@@ -9,6 +9,7 @@ import data.DataBase;
 
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
+import util.TupleReader;
 import visitors.BasicExpressionVisitor;
 
 /**
@@ -24,9 +25,10 @@ public class ScanOperator extends Operator{
 	private String tableName;
 	private String tableAddress;
 	private File tableFile;
-	private RandomAccessFile readPointer;
+	//private RandomAccessFile readPointer;
 	private String tableAliase;
 	private LinkedList<String> attributes;
+	private TupleReader tr;
 	
 
 	/**
@@ -37,26 +39,22 @@ public class ScanOperator extends Operator{
 	@Override
 	public Tuple getNextTuple() {
 		try {
-			String data = readPointer.readLine();
-			if (data!=null) {
+			//String data = tr.readNextTuple().getTupleData();
+			Tuple t = tr.readNextTuple();
+			if (t!=null) {
 				/*Handle aliases*/
-				Tuple t = new Tuple(data, tableAliase, attributes);
+				//Tuple t = new Tuple(data, tableAliase, attributes);
 				Expression e = this.getExpression();
 				if(e!=null) {
 					while (t!=null) {
 						boolean res = super.judgeExpression(t);
 						if(res) break;
-						data = readPointer.readLine();
-						if (data != null) {
-							t = new Tuple(data, tableAliase, attributes);
-						}else return null;
-						
-					}
-								
+						t = tr.readNextTuple();				
+					}			
 				}
 				return t;
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			e.getMessage();
 		}
@@ -66,17 +64,23 @@ public class ScanOperator extends Operator{
 
 	/**
 	 * This method is to reset scan operator
-	 * by resetting its readpointer
+	 * by resetting its tuple reader
 	 */
 	@Override
 	public void reset() {
 		try {
-			this.readPointer.seek(0);
-		} catch (IOException e) {
+			this.tr.resetBuffer();
+			this.tr.resetFileChannel();
+		} catch (Exception e) {
 			e.printStackTrace();
 			e.getMessage();
 		}
 		
+	}
+	
+	public void reset(int bufferIndex, int fileChannelIndex) {
+		this.tr.resetBuffer(bufferIndex);
+		this.tr.resetFileChannel(fileChannelIndex);
 	}
 	
 	/**
@@ -102,12 +106,7 @@ public class ScanOperator extends Operator{
 		this.tableName = aimTable[0];
 		this.tableAddress = DataBase.getInstance().getAddresses(tableName);
 		this.tableFile = new File(tableAddress);
-		try {
-			this.readPointer = new RandomAccessFile(this.tableFile, "r");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			e.getMessage();
-		}
+		this.tr = new TupleReader(tableInfo);
 		this.tableAliase = aimTable[aimTable.length-1];
 		this.attributes = DataBase.getInstance().getSchema(tableName);
 		setExpression(expression);
@@ -125,12 +124,11 @@ public class ScanOperator extends Operator{
 		this.tableName = tableName;
 		this.tableAddress = DataBase.getInstance().getAddresses(tableName);
 		this.tableFile = new File(tableAddress);
-		try {
-			this.readPointer = new RandomAccessFile(this.tableFile, "r");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			e.getMessage();
-		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(tableName);
+		sb.append(' ');
+		sb.append(tableAliase);
+		this.tr = new TupleReader(sb.toString());
 		if (tableAliase == null) this.tableAliase = tableName;
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
@@ -150,18 +148,17 @@ public class ScanOperator extends Operator{
 		this.tableName = tableName;
 		this.tableAddress = DataBase.getInstance().getAddresses(tableName);
 		this.tableFile = new File(tableAddress);
-		try {
-			this.readPointer = new RandomAccessFile(this.tableFile, "r");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			e.getMessage();
-		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(tableName);
+		sb.append(' ');
+		sb.append(tableAliase);
+		this.tr = new TupleReader(sb.toString());
 		if (tableAliase == null) this.tableAliase = tableName;
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
 	}
 	
-	/** get table alise*/
+	/** get table aliase*/
 	public String getTableAliase() {
 		return tableAliase;
 	}
@@ -187,8 +184,8 @@ public class ScanOperator extends Operator{
 	}
 
 	/** get table read pointer*/
-	public RandomAccessFile getReadPointer() {
-		return readPointer;
+	public TupleReader getReadPointer() {
+		return tr;
 	}
 
 }

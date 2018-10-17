@@ -11,11 +11,11 @@ package data;
  */
 public class Dynamic_properties {
 
-	public static String inputPath = "src/samples/input";
+	public static String inputPath = "src/samples_p1/input";
 	public static String dataPath = inputPath + "/db/data/";
 	public static String queryPath = inputPath + "/queries.sql";
 	public static String schemaPath = inputPath + "/db/schema.txt";
-	public static String outputPath = "src/samples/output";
+	public static String outputPath = "src/samples_p1/output";
 	
 	/**
 	 * set input and output path according to pass in parameters
