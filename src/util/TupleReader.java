@@ -176,6 +176,7 @@ public class TupleReader {
 	 */
 	private int readFromChannel() throws Exception  {
 		if (!fcin.isOpen()) {
+			pageNumber = 0;
 			initFileChannel (tableInfo);
 		}
 		pageNumber+=1;
