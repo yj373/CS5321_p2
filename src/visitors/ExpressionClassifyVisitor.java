@@ -64,15 +64,28 @@ public class ExpressionClassifyVisitor implements ExpressionVisitor{
 			tableNameIndices = column2.getWholeColumnName().split("\\.");
 			String tableAlias2 = tableNameIndices[0];
 			
-			TablePair key = new TablePair(tableAlias1, tableAlias2);
-			Expression value = joinConditions.get(key);
-			if (value != null) {
-				joinConditions.put(key, new AndExpression(value, 
-					new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
+			// corner case: if the two columns are for the same tuple, it goes to scan conditions
+			if (tableAlias1.equals(tableAlias2)) {
+				Expression prevCondi = scanConditions.get(tableAlias1);
+				if (prevCondi == null) {
+					scanConditions.put(tableAlias1, 
+							new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
+				} else {
+					scanConditions.put(tableAlias1,new AndExpression(prevCondi,
+							new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
+				}
 			} else {
-				joinConditions.put(key, 
-					new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
+				TablePair key = new TablePair(tableAlias1, tableAlias2);
+				Expression value = joinConditions.get(key);
+				if (value != null) {
+					joinConditions.put(key, new AndExpression(value, 
+						new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression())));
+				} else {
+					joinConditions.put(key, 
+						new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
+				}
 			}
+			
 		} else {
 		// In this case, it must have one side to be column and the other to be number
 			Column column;
