@@ -175,6 +175,9 @@ public class TupleReader {
 	 * @throws Exception
 	 */
 	private int readFromChannel() throws Exception  {
+		if (!fcin.isOpen()) {
+			initFileChannel (tableInfo);
+		}
 		pageNumber+=1;
 		System.out.println("第"+pageNumber+"页");
 
