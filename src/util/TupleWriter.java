@@ -47,15 +47,15 @@ public class TupleWriter {
 		Tuple tuple = test.readNextTuple();
 
 		TupleWriter write = new TupleWriter(1);
-
 		while (true) {
-			if (!write.writeTuple(tuple)) {
-
+			if(!write.writeTuple(tuple)) {
 				break;
 			}
-			tuple = null;
+			tuple = test.readNextTuple();
 		}
-	}
+				
+		}
+	
 
 
 	//constructor
@@ -121,6 +121,7 @@ public class TupleWriter {
 	//write tuples
 	public boolean writeTuple(Tuple tuple) throws IOException {
 
+		
 		writeReadableTuple(tuple);
 		return  writeBinaryTuple(tuple);
 
@@ -128,6 +129,7 @@ public class TupleWriter {
 
 	public void writeReadableTuple(Tuple tuple) throws IOException {
 		
+		//如果为null 返回false
 		if (tuple != null) {
 			tuple.printData();
 			humanbw.write(tuple.getTupleData().toString() + '\n');
@@ -144,8 +146,11 @@ public class TupleWriter {
 				clear(bufferPosition);
 				buffer.putInt(4, tupleCounter);
 				fcout.write(buffer);
+				
+				
 				empty = true;
 				bufferPosition = 0;
+				tupleCounter =0;
 			}	
 
 			//要在这里close吗？
@@ -166,13 +171,12 @@ public class TupleWriter {
 		/*if it is a new buffer*/
 		if (empty) {
 			initMetaData();
-			System.out.println();
 			empty = false;
 		}
 
 
 		/*check the space of buffer*/
-		if (tupleCounter != maxTupleNumber) {
+		//if (tupleCounter != maxTupleNumber) {
 
 			/*write tuple to buffer*/
 			for (int i=0; i<attributeNumber; i++) {
@@ -180,16 +184,21 @@ public class TupleWriter {
 				bufferPosition +=4;
 			}
 			tupleCounter +=1;
+			if (tupleCounter == maxTupleNumber) {
+				/*zero out the rest space in buffer and flush it to channel*/
+				clear(bufferPosition);
+				fcout.write(buffer);
+				
+				empty = true;
+				bufferPosition = 0;
+				tupleCounter =0;
+			}
 
-		} else {
+		//} else {
 
-			/*zero out the rest space in buffer and flush it to channel*/
-			clear(bufferPosition);
-			fcout.write(buffer);
-			empty = true;
-			bufferPosition = 0;
 
-		}
+
+		//}
 
 
 		return true;
@@ -211,6 +220,8 @@ public class TupleWriter {
 	 */
 
 	private void clear(int bufferPosition){
+		
+		buffer.clear();
 
 		int times = buffer.limit() - bufferPosition;
 		for (int i=0; i< times; i++) {
