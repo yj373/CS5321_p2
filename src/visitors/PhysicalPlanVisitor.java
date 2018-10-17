@@ -82,7 +82,10 @@ public class PhysicalPlanVisitor {
 	}
 	
 	/**
-	 * Once visit a logical project 
+	 * Once visit a logical project operator, visit its left child. After
+	 * the child list is updated, construct a physical project operator.
+	 * Poll the last element in the child list as the left child of the project
+	 * operator 
 	 * @param operator: logical project operator
 	 */
 	public void visit(LogicalProjectOperator operator) {
@@ -97,6 +100,13 @@ public class PhysicalPlanVisitor {
 		root = project;
 	}
 	
+	/**
+	 * Once visit a logical sort operator, visit its left child. After
+	 * the child list is updated, construct a physical sort operator.
+	 * Poll the last element in the child list as the left child of the project
+	 * operator 
+	 * @param operator: logical sort operator
+	 */
 	public void visit(LogicalSortOperator operator) {
 		LogicalOperator op1 = operator.getLeftChild();
 		if (op1 != null) {
@@ -108,7 +118,14 @@ public class PhysicalPlanVisitor {
 		childList.add(sort);
 		root = sort;
 	}
-
+	
+	/**
+	 * Once visit a logical logical DuplicateElimination operator, visit its left child. After
+	 * the child list is updated, construct a physical DuplicateElimination operator.
+	 * Poll the last element in the child list as the left child of the project
+	 * operator 
+	 * @param operator: logical DuplicateElimination operator
+	 */
 	public void visit(LogicalDuplicateEliminationOperator operator) {
 		LogicalOperator op1 = operator.getLeftChild();
 		if (op1 != null) {
