@@ -53,7 +53,7 @@ public class TupleWriter {
 
 				break;
 			}
-			tuple = null;
+			tuple = test.readNextTuple();
 		}
 	}
 
