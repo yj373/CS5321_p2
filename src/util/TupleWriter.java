@@ -48,19 +48,19 @@ public class TupleWriter {
 
 
 	//for test
-		public static void main(String[] args) throws Exception {
-			TupleReader test = new TupleReader("Boats AS B");
-			Tuple tuple = test.readNextTuple();
-	
-			TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
-			while (true) {
-				if(!write.writeTuple(tuple)) {
-					break;
-				}
-				tuple = test.readNextTuple();
-			}
-	
-		}
+//		public static void main(String[] args) throws Exception {
+//			TupleReader test = new TupleReader("Boats AS B");
+//			Tuple tuple = test.readNextTuple();
+//	
+//			TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
+//			while (true) {
+//				if(!write.writeTuple(tuple)) {
+//					break;
+//				}
+//				tuple = test.readNextTuple();
+//			}
+//	
+//		}
 
 
 	/** 
@@ -144,7 +144,7 @@ public class TupleWriter {
 
 	
 	/**
-	 * This method is to write tuple to humanreadable file 
+	 * This method is to write tuple to human readable file 
 	 * 
 	 */
 	private void writeReadableTuple(Tuple tuple) throws IOException {
@@ -235,13 +235,17 @@ public class TupleWriter {
 	private void clear(int bufferPosition){
 
 		/*reset the position in buffer*/
-		buffer.clear();
-
+		
+		//buffer.clear();
+		
+	   
+		
 		int times = buffer.limit() - bufferPosition;
 		for (int i=0; i< times; i++) {
 			buffer.put(bufferPosition, (byte) 0);
 			bufferPosition++;
 		}
+		
 		
 
 	}
