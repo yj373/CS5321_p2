@@ -1,17 +1,13 @@
 package operators;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.Map;
 
 import data.Dynamic_properties;
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import util.TupleWriter;
 import visitors.BasicExpressionVisitor;
-import util.TupleWriter;
 /**
  * parent class of every operator
  * 
@@ -22,6 +18,8 @@ public abstract class Operator {
 	private Operator leftChild;
 	private Operator rightChild;
 	private Expression exp;
+	
+	protected Map<String, Integer> schema;
 
 	/**
 	 * get child operator

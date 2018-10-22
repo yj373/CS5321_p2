@@ -46,6 +46,7 @@ public class LogicalJoinOperator extends LogicalOperator {
 	 * get LeftChild Operator
 	 * @return the leftChild
 	 */
+	@Override
 	public LogicalOperator getLeftChild() {
 		return leftChild;
 	}
@@ -54,6 +55,7 @@ public class LogicalJoinOperator extends LogicalOperator {
 	 * get rightChild Operator
 	 * @return the rightChild
 	 */
+	@Override
 	public LogicalOperator getRightChild() {
 		return rightChild;
 	}

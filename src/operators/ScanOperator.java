@@ -1,16 +1,12 @@
 package operators;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.LinkedList;
 import data.DataBase;
 
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import util.TupleReader;
-import visitors.BasicExpressionVisitor;
 
 /**
  * this class provides function:
@@ -110,6 +106,9 @@ public class ScanOperator extends Operator{
 		this.tableAliase = aimTable[aimTable.length-1];
 		this.attributes = DataBase.getInstance().getSchema(tableName);
 		setExpression(expression);
+		
+		//modification
+		schema = tr.getSchema();
 	}
 	
 	/** 
@@ -133,6 +132,9 @@ public class ScanOperator extends Operator{
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
 		setExpression(expression);
+		
+		//modification
+		schema = tr.getSchema();
 	}
 	
 	/** 
@@ -156,6 +158,10 @@ public class ScanOperator extends Operator{
 		if (tableAliase == null) this.tableAliase = tableName;
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
+		
+		
+		//modification
+		schema = tr.getSchema();
 	}
 	
 	/** get table aliase*/

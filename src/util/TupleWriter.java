@@ -47,6 +47,25 @@ public class TupleWriter {
 	private BufferedWriter humanbw;
 
 
+
+
+/**
+	public static void main(String[] args) throws Exception {
+		TupleReader test = new TupleReader("Boats AS B");
+		Tuple tuple = test.readNextTuple();
+
+		TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
+		while (true) {
+			if(!write.writeTuple(tuple)) {
+				break;
+			}
+			tuple = test.readNextTuple();
+		}
+
+
+	}
+	*/
+
 	//for test
 //
 //
@@ -64,6 +83,7 @@ public class TupleWriter {
 //
 //
 //	}
+
 	/** 
 	 * This method is a constructor which is to
 	 * init file path and related field
@@ -187,7 +207,7 @@ public class TupleWriter {
 			buffer.limit();
 			System.out.println(buffer.limit() - metasize);
 			System.out.println(attributeNumber * 4);
-			maxTupleNumber = (int)((buffer.limit() - metasize)/(attributeNumber * 4));
+			maxTupleNumber = (buffer.limit() - metasize)/(attributeNumber * 4);
 			checkInit = true;
 		}
 
