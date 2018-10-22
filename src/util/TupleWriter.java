@@ -42,42 +42,28 @@ public class TupleWriter {
 	private static int size = 4096;
 	/*the size of metadata*/
 	private static int metasize = 8;
-	/*record the state of meta data initilization*/
+	/*record the state of meta data initialization*/
 	private boolean checkInit;
 	private BufferedWriter humanbw;
 
 
 	//for test
-<<<<<<< HEAD
-//		public static void main(String[] args) throws Exception {
-//			TupleReader test = new TupleReader("Boats AS B");
-//			Tuple tuple = test.readNextTuple();
-//	
-//			TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
-//			while (true) {
-//				if(!write.writeTuple(tuple)) {
-//					break;
-//				}
-//				tuple = test.readNextTuple();
+//
+//
+//	public static void main(String[] args) throws Exception {
+//		TupleReader test = new TupleReader("Boats AS B");
+//		Tuple tuple = test.readNextTuple();
+//
+//		TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
+//		while (true) {
+//			if(!write.writeTuple(tuple)) {
+//				break;
 //			}
-//	
+//			tuple = test.readNextTuple();
 //		}
-=======
-
-	public static void main(String[] args) throws Exception {
-		TupleReader test = new TupleReader("Boats AS B");
-		Tuple tuple = test.readNextTuple();
-
-		TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
-		while (true) {
-			if(!write.writeTuple(tuple)) {
-				break;
-			}
-			tuple = test.readNextTuple();
-		}
->>>>>>> d70afe0a44e96ba8782ee96c3c95545f48c19f0c
-
-	}
+//
+//
+//	}
 	/** 
 	 * This method is a constructor which is to
 	 * init file path and related field
@@ -251,7 +237,7 @@ public class TupleWriter {
 
 		/*reset the position in buffer*/
 		
-		//buffer.clear();
+		buffer.clear();
 		
 	   
 		
