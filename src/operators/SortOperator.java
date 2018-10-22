@@ -20,7 +20,11 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
  */
 public class SortOperator extends Operator{
 
-	private Map<String, Integer> schema;
+	//modification in 10.22 -- delete field schema
+	//private Map<String, Integer> schema;
+	
+	
+	
 	private PlainSelect plainSelect;
 	private String[] sortSequence;
 	/*store all Tuples for before sorting*/

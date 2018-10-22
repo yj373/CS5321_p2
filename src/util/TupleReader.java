@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;  
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -108,6 +109,18 @@ public class TupleReader {
 		attributes = DataBase.getInstance().getSchema(tableName);
 		File tableFile = new File(tableAddress);
 
+		/*10.22 modification --- init schema by database*/
+		schema = new HashMap<String, Integer>();
+		for (int i=0; i< attributes.size(); i++) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(tableAliase);
+			sb.append(".");
+			sb.append(attributes.get(i));
+			schema.put(sb.toString(), i);
+		}
+
+		
+		
 		try {
 			/*get the channel of source file*/ 
 			fcin = new RandomAccessFile(tableFile, "r").getChannel();

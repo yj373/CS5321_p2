@@ -27,7 +27,7 @@ public class JoinOperator extends Operator{
 		setExpression(expression);
 		setLeftChild(op1);
 		setRightChild(op2);
-		concateSchema(op1.schema, op2.schema);
+		schema = concateSchema(op1.schema, op2.schema);
 		currLeftTup = null;
 		currRightTup = null;
 	}
@@ -127,13 +127,14 @@ public class JoinOperator extends Operator{
 		System.arraycopy(t2.getData(), 0, data, t1.getSize(), t2.getSize());
 
 		/* compose the new schema */
-		Map<String, Integer> schema = concateSchema(t1.getSchema(), t2.getSchema());
-//		for (Map.Entry<String, Integer> e : t1.getSchema().entrySet()) {
-//			schema.put(e.getKey(), e.getValue());
-//		}
-//		for (Map.Entry<String, Integer> e : t2.getSchema().entrySet()) {
-//			schema.put(e.getKey(), e.getValue() + t1.getSize());
-//		}
+		Map<String, Integer> schema = new HashMap<String, Integer>();
+		
+		for (Map.Entry<String, Integer> e : t1.getSchema().entrySet()) {
+			schema.put(e.getKey(), e.getValue());
+		}
+		for (Map.Entry<String, Integer> e : t2.getSchema().entrySet()) {
+			schema.put(e.getKey(), e.getValue() + t1.getSize());
+		}
 
 		/* construct the result tuple */
 		Tuple result = new Tuple(data, schema);

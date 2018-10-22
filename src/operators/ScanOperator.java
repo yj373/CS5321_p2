@@ -132,6 +132,9 @@ public class ScanOperator extends Operator{
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
 		setExpression(expression);
+		
+		//modification
+		schema = tr.getSchema();
 	}
 	
 	/** 
@@ -155,6 +158,10 @@ public class ScanOperator extends Operator{
 		if (tableAliase == null) this.tableAliase = tableName;
 		else this.tableAliase = tableAliase;
 		this.attributes = DataBase.getInstance().getSchema(tableName);
+		
+		
+		//modification
+		schema = tr.getSchema();
 	}
 	
 	/** get table aliase*/
