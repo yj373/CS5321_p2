@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -115,6 +114,7 @@ public class SortOperator extends Operator{
 		/*get the required sorting sequence */
 		List<OrderByElement> list = plainSelect.getOrderByElements();
 
+		@Override
 		public int compare(Tuple o1, Tuple o2) {
 			if (list != null) {
 				for (int i=0; i<list.size(); i++) {

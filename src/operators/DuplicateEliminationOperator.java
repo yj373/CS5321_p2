@@ -1,6 +1,5 @@
 package operators;
 
-import java.util.LinkedList;
 import data.Tuple;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 

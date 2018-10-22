@@ -47,22 +47,7 @@ public class TupleWriter {
 	private BufferedWriter humanbw;
 
 
-	//for test
-<<<<<<< HEAD
-//		public static void main(String[] args) throws Exception {
-//			TupleReader test = new TupleReader("Boats AS B");
-//			Tuple tuple = test.readNextTuple();
-//	
-//			TupleWriter write = new TupleWriter(Dynamic_properties.outputPath+"/query1");
-//			while (true) {
-//				if(!write.writeTuple(tuple)) {
-//					break;
-//				}
-//				tuple = test.readNextTuple();
-//			}
-//	
-//		}
-=======
+
 
 	public static void main(String[] args) throws Exception {
 		TupleReader test = new TupleReader("Boats AS B");
@@ -75,7 +60,7 @@ public class TupleWriter {
 			}
 			tuple = test.readNextTuple();
 		}
->>>>>>> d70afe0a44e96ba8782ee96c3c95545f48c19f0c
+
 
 	}
 	/** 
@@ -201,7 +186,7 @@ public class TupleWriter {
 			buffer.limit();
 			System.out.println(buffer.limit() - metasize);
 			System.out.println(attributeNumber * 4);
-			maxTupleNumber = (int)((buffer.limit() - metasize)/(attributeNumber * 4));
+			maxTupleNumber = (buffer.limit() - metasize)/(attributeNumber * 4);
 			checkInit = true;
 		}
 
@@ -251,7 +236,7 @@ public class TupleWriter {
 
 		/*reset the position in buffer*/
 		
-		//buffer.clear();
+		buffer.clear();
 		
 	   
 		

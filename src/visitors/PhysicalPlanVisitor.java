@@ -3,7 +3,6 @@ package visitors;
 import java.util.LinkedList;
 import java.util.List;
 
-import data.TablePair;
 import logicalOperators.LogicalDuplicateEliminationOperator;
 import logicalOperators.LogicalJoinOperator;
 import logicalOperators.LogicalOperator;
@@ -11,7 +10,6 @@ import logicalOperators.LogicalProjectOperator;
 import logicalOperators.LogicalScanOperator;
 import logicalOperators.LogicalSortOperator;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import operators.JoinOperator;
