@@ -40,7 +40,7 @@ public class RandomGenerator {
 //	}
 	
 	/**
-	 * Generate tuples randomly
+	 * Generate tuples randomly.
 	 * Write to corresponding file
 	 * @throws IOException 
 	 */
@@ -107,17 +107,17 @@ public class RandomGenerator {
 		this.numAttribute = numAttribute;
 	}
 	
-	//for test
-	public static void main(String[] args) throws Exception {
-		TupleReader test = new TupleReader("Boats AS B");
-		Tuple tuple = test.readNextTuple();
-		String address = "src/randomGenerated/Boats";
-		int up = 5000;
-		int low = 0;
-		int num = 5;
-		RandomGenerator rg = new RandomGenerator(up, low, num, address, tuple.getSchema());
-		rg.generate();
+	//Test random generator
+//	public static void main(String[] args) throws Exception {
+//		TupleReader test = new TupleReader("Boats AS B");
+//		Tuple tuple = test.readNextTuple();
+//		String address = "src/randomGenerated/Boats";
+//		int up = 5000;
+//		int low = 0;
+//		int num = 5;
+//		RandomGenerator rg = new RandomGenerator(up, low, num, address, tuple.getSchema());
+//		rg.generate();
 
-	}
+//	}
 
 }
