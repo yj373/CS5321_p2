@@ -1,13 +1,11 @@
 package App;
 
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
 import data.Dynamic_properties;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.*;
 import operators.Operator;
 import visitors.PhysicalPlanVisitor;
 

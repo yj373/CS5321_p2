@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;  
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
+
 import data.DataBase;
 import data.Tuple;
 
@@ -49,7 +52,15 @@ public class TupleReader {
 	private RandomAccessFile readPointer;
 	private String tableAliase;
 	private LinkedList<String> attributes;
+	
+	//modification -- add new field
+	private Map<String, Integer> schema;
+	//private boolean schemaIsInit; 之后再优化
 
+	
+	public Map<String, Integer> getSchema() {
+		return schema;
+	}
 
 	/** 
 	 * This method is a constructor which is to
@@ -98,9 +109,22 @@ public class TupleReader {
 		attributes = DataBase.getInstance().getSchema(tableName);
 		File tableFile = new File(tableAddress);
 
+		/*10.22 modification --- init schema by database*/
+		schema = new HashMap<String, Integer>();
+		for (int i=0; i< attributes.size(); i++) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(tableAliase);
+			sb.append(".");
+			sb.append(attributes.get(i));
+			schema.put(sb.toString(), i);
+		}
+
+		
+		
 		try {
 			/*get the channel of source file*/ 
 			fcin = new RandomAccessFile(tableFile, "r").getChannel();
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			e.getMessage();
@@ -108,17 +132,18 @@ public class TupleReader {
 
 	}
 
-	/**
+	
 	//main method to test
-	public static void main(String[] args) throws Exception {
-		TupleReader test = new TupleReader("Boats AS B");
-		for (int i=0; i< 1001; i++) {
-			test.readNextTuple();
-		}
-		//test.readNextTuple();
-		
-	}
-	*/
+//	public static void main(String[] args) throws Exception {
+//		TupleReader test = new TupleReader("Boats AS B");
+//		for (int i=0; i< 1001; i++) {
+//			
+//			System.out.println(test.readNextTuple().getTupleData());
+//		}
+//		//test.readNextTuple();
+//		
+//	}
+	
 
 
 	/**
@@ -148,12 +173,14 @@ public class TupleReader {
 		/*read one integer every time from the buffer*/
 		long[] data = new long[attributeNumber];
 		for (int i=0; i<attributeNumber; i++) {
-			data[i] = (long)buffer.getInt(bufferPosition);
+			data[i] = buffer.getInt(bufferPosition);
 			bufferPosition += 4;
 		}
 	
 		/*create a new tuple*/
 		Tuple tuple = new Tuple(data, tableAliase, attributes);
+		schema = tuple.getSchema();
+		
 		tupleNumber--;
 
 		/* after reading all tuples in one page

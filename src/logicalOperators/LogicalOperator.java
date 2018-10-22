@@ -2,10 +2,8 @@ package logicalOperators;
 
 import java.util.*;
 
-import visitors.BasicExpressionVisitor;
 import visitors.LogicalPlanVisitor;
 import visitors.PhysicalPlanVisitor;
-import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 /**
  * The base class of logical operators.
