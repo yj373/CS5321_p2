@@ -15,9 +15,9 @@ import visitors.BasicExpressionVisitor;
  *
  */
 public abstract class Operator {
-	private Operator leftChild;
-	private Operator rightChild;
-	private Expression exp;
+	protected Operator leftChild;
+	protected Operator rightChild;
+	protected Expression exp;
 	
 	protected Map<String, Integer> schema;
 
