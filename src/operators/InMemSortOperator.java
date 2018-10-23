@@ -9,6 +9,7 @@ import util.TupleReader;
 import util.TupleWriter;
 
 public class InMemSortOperator extends Operator{
+	// the priority list of columns to be sorted. eg [S.A, S.B, S.C] 
     private List<String> sortColumns;
     private String tempFileAddress;
 	private TupleReader tr;
@@ -69,8 +70,7 @@ public class InMemSortOperator extends Operator{
 	@Override
 	public void reset() {
 		try {
-			this.tr.resetBuffer();
-			this.tr.resetFileChannel();
+			this.tr.reset();
 		} catch (Exception e) {
 			e.printStackTrace();
 			e.getMessage();

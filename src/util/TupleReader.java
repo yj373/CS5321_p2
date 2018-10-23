@@ -131,7 +131,7 @@ public class TupleReader {
 		tableAddress = DataBase.getInstance().getAddresses(tableName);
 		tableAliase = aimTable[aimTable.length-1];
 		attributes = DataBase.getInstance().getSchema(tableName);
-		File tableFile = new File(tableAddress);
+		tableFile = new File(tableAddress);
 
 		/*10.22 modification --- init schema by database*/
 		schema = new HashMap<String, Integer>();
@@ -184,8 +184,7 @@ public class TupleReader {
 			/*if we have reached the end of file*/
 			if (r == -1) {
 				close();
-				resetBuffer();
-				resetFileChannel();
+				reset();
 				return null;  
 			} 
 			empty = false;
@@ -295,18 +294,14 @@ public class TupleReader {
 	/**
 	 * 
 	 */
-	public void resetBuffer() {
+	public void reset() {
 		this.bufferPosition = 0;
-
+		this.filePosition = 0;
+		this.empty = true;
 	}
 	
 	public void resetBuffer(int index) {
 		this.bufferPosition = index;
-
-	}
-	
-	public void resetFileChannel() {
-		this.filePosition = 0;
 	}
 	
 	/*
@@ -329,8 +324,7 @@ public class TupleReader {
 			                              // through channel, start with the specified file position
 			if (res == -1) {
 				close();
-				resetBuffer();
-				resetFileChannel();
+				reset();
 			} 
 			empty = false;
 		} catch (IOException e) {
