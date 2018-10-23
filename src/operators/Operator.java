@@ -79,8 +79,11 @@ public abstract class Operator {
 		}
 		reset();
 	}
-
 	
+    /*should override by External Sort Operator and In-Memory Sort Operator */
+	/* idx is the nth entry that we want to trace back and restart with in relation*/
+	public void reset(int idx) {
+	}
 	
 	public boolean judgeExpression(Tuple tuple) {
 		BasicExpressionVisitor bev = new BasicExpressionVisitor(tuple);

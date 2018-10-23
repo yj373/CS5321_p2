@@ -34,6 +34,10 @@ public class Logger {
 			folder.mkdirs();
 		}
     	File file = new File(fileDiretory + "/log");
+    	// if file doesnt exists, then create it
+        if (!file.exists()) {
+            file.createNewFile();
+        }
     	fileWriter = new FileWriter(file);
     }
    
