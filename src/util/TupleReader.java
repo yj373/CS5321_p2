@@ -325,7 +325,7 @@ public class TupleReader {
 		pageNumber = index / numFirst;
 		filePosition = TupleReader.size * pageNumber;
 		try {
-			int res = readFromChannel();  // In this func, we load a new buffer page 
+			int res = readFromChannel();  // In this func, we load a new buffer page so pageNumber++
 			                              // through channel, start with the specified file position
 			if (res == -1) {
 				close();
@@ -336,7 +336,7 @@ public class TupleReader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		resetBuffer(numLast);
+		resetBuffer(numLast * (4 * this.schema.size()));
 	}
 
 }

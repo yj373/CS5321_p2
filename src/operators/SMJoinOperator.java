@@ -30,8 +30,11 @@ public class SMJoinOperator extends JoinOperator{
 	public void setSortOperator() {
 		if (leftChild != null) {
 			Operator originalLeft = leftChild;
-			leftChild = new InMemSortOperator(originalLeft, leftSortColumns);
-			
+			leftChild = new InMemSortOperator(originalLeft, leftSortColumns);			
+		}
+		if (rightChild != null) {
+			Operator originalRight = rightChild;
+			rightChild = new InMemSortOperator(originalRight, rightSortColumns);			
 		}
 	}
 	

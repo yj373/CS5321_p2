@@ -78,6 +78,11 @@ public class InMemSortOperator extends Operator{
 		
 	}
 	
+	@Override
+	public void reset(int idx) {
+		this.tr.resetFileChannel(idx);
+	}
+	
 	private class TupleComparator implements Comparator<Tuple> {
 		@Override
 		public int compare(Tuple o1, Tuple o2) {
