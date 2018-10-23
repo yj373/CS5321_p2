@@ -107,7 +107,7 @@ public class TupleReader {
 		tableAddress = DataBase.getInstance().getAddresses(tableName);
 		tableAliase = aimTable[aimTable.length-1];
 		attributes = DataBase.getInstance().getSchema(tableName);
-		File tableFile = new File(tableAddress);
+		tableFile = new File(tableAddress);
 
 		/*10.22 modification --- init schema by database*/
 		schema = new HashMap<String, Integer>();

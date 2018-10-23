@@ -12,6 +12,7 @@ import logicalOperators.LogicalSortOperator;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import operators.BNLJoinOperator;
 import operators.JoinOperator;
 import operators.Operator;
 import operators.ProjectOperator;
@@ -74,7 +75,15 @@ public class PhysicalPlanVisitor {
 		Expression exp = jnOp.getCondition();
 		Operator right = childList.pollLast();
 		Operator left = childList.pollLast();
-		JoinOperator join = new JoinOperator(left, right, exp);
+		
+		
+		//for yxx's test
+		//JoinOperator join = new JoinOperator(left, right, exp);
+		JoinOperator join = new BNLJoinOperator(left, right, exp, 2);
+		
+		
+		
+		
 		childList.add(join);
 		root = join;
 	}
