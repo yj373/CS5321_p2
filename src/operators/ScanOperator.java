@@ -65,8 +65,7 @@ public class ScanOperator extends Operator{
 	@Override
 	public void reset() {
 		try {
-			this.tr.resetBuffer();
-			this.tr.resetFileChannel();
+			this.tr.reset();
 		} catch (Exception e) {
 			e.printStackTrace();
 			e.getMessage();

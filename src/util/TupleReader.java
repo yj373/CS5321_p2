@@ -85,6 +85,30 @@ public class TupleReader {
 			e.printStackTrace();
 		}
 	}
+	
+	// Constructor for in-memory sort and external sort;
+	public TupleReader (String tableAddress, Map<String, Integer> schema) {
+		empty = true;
+		filePosition = 0;
+		bufferPosition = 0;
+		pageNumber = 0;
+		this.tableAddress = tableAddress;
+		this.schema = schema;
+		this.attributeNumber = schema.size();
+		/*create a new buffer with size 4096 bytes*/ 
+		buffer = ByteBuffer.allocate(size);
+
+		/*open file channel*/
+		File tableFile = new File(tableAddress);
+		try {
+			/*get the channel of source file*/ 
+			fcin = new RandomAccessFile(tableFile, "r").getChannel();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			e.getMessage();
+		}		
+	}
 
 
 
@@ -160,8 +184,7 @@ public class TupleReader {
 			/*if we have reached the end of file*/
 			if (r == -1) {
 				close();
-				resetBuffer();
-				resetFileChannel();
+				reset();
 				return null;  
 			} 
 			empty = false;
@@ -178,8 +201,7 @@ public class TupleReader {
 		}
 	
 		/*create a new tuple*/
-		Tuple tuple = new Tuple(data, tableAliase, attributes);
-		schema = tuple.getSchema();
+		Tuple tuple = new Tuple(data, schema);
 		
 		tupleNumber--;
 
@@ -218,10 +240,10 @@ public class TupleReader {
 	 * @return r
 	 * @throws Exception
 	 */
-	private int readFromChannel() throws Exception  {
+	private int readFromChannel() throws IOException  {
 		if (!fcin.isOpen()) {
-			pageNumber = 0;
-			initFileChannel (tableInfo);
+			File tableFile = new File(tableAddress);
+			fcin = new RandomAccessFile(tableFile, "r").getChannel();
 		}
 		pageNumber+=1;
 		//System.out.println("第"+pageNumber+"页");
@@ -272,22 +294,43 @@ public class TupleReader {
 	/**
 	 * 
 	 */
-	public void resetBuffer() {
+	public void reset() {
 		this.bufferPosition = 0;
-
+		this.filePosition = 0;
+		this.empty = true;
 	}
 	
 	public void resetBuffer(int index) {
 		this.bufferPosition = index;
-
 	}
 	
-	public void resetFileChannel() {
-		this.filePosition = 0;
-	}
-	
+	/*
+	 * param index: the NO.i tuple that I want to get in the File table;
+	 */
 	public void resetFileChannel(int index) {
-		this.filePosition = index;
+		
+		/* supposing the file is n pages; for the first n - 1 pages, 
+		 the number of tuples on each page is:
+		     numFirst = (4096 - 8) / (4 * attribute_num);
+		 the number of tuples on the last page is:
+		     numLast = index % numFirst 
+		 */
+		int numFirst = (TupleReader.size - 8) / (4 * this.schema.size());
+		int numLast = index % numFirst;
+		pageNumber = index / numFirst;
+		filePosition = TupleReader.size * pageNumber;
+		try {
+			int res = readFromChannel();  // In this func, we load a new buffer page so pageNumber++
+			                              // through channel, start with the specified file position
+			if (res == -1) {
+				close();
+				reset();
+			} 
+			empty = false;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		resetBuffer(numLast * (4 * this.schema.size()));
 	}
 
 }
