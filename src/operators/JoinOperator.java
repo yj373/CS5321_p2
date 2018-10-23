@@ -17,7 +17,9 @@ import net.sf.jsqlparser.expression.Expression;
 public class JoinOperator extends Operator{
 	private Tuple currLeftTup;
 	private Tuple currRightTup;
+	
 
+	
 	/**
 	 * Constructor: create an JoinOperator instance with its two child operator.
 	 * @param op1 leftChild Operator
@@ -111,7 +113,7 @@ public class JoinOperator extends Operator{
 	 * @param t1 the leading tuple
 	 * @param t2 the following tuple
 	 */
-	private Tuple concatenate(Tuple t1, Tuple t2) { 
+	protected Tuple concatenate(Tuple t1, Tuple t2) { 
 		/* deal with corner case */
 		if (t1 == null && t2 == null) {
 			return null;
