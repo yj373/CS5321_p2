@@ -27,11 +27,17 @@ public class SQLInterpreter {
 	 * @param args   absolute paths
 	 * @param args[0]   absolute path of input file
 	 * @param args[1]   absolute path of output file
+	 * @param args[2]   absolute path of temporary scratch file directory
 	 */
 	public static void init (String[] args) {
-		Dynamic_properties.setPath(args[0], args[1]);
+		if(args.length==3) {
+			Dynamic_properties.setPath(args[0], args[1], args[2]);
+		}else if (args.length == 2) {
+			Dynamic_properties.setPath(args[0], args[1]);
+		}
+		
 	}
-
+	
 
 	/**
 	 * Build query tree for every query
