@@ -62,9 +62,9 @@ public class SMJoinOperator extends JoinOperator{
 		}
 		/* corner case 2: Since join condition is not null, as long as there 
 		 * is one empty table, return null */
-		if (leftChild.isEmptyTable() || rightChild.isEmptyTable()) {
-			return null;
-		}
+//		if (leftChild.isEmptyTable() || rightChild.isEmptyTable()) {
+//			return null;
+//		}
 		
         /* corner case 3: beginning of the merge process */
 		if (currLeftTup == null && currRightTup == null) {
@@ -72,6 +72,12 @@ public class SMJoinOperator extends JoinOperator{
 			currRightTup = rightChild.getNextTuple();
 			rightIdx ++;
 		}
+		
+		////// debug//////
+		if (rightIdx == 83) {
+			System.out.println("warning!");
+		}
+		/////
 		/* corner case 4: end of the merge process*/
 		if (currLeftTup == null || currRightTup == null) {
 			return null;
@@ -94,9 +100,9 @@ public class SMJoinOperator extends JoinOperator{
 					// what if currLeft == null ?
 				}
 			}
-			if (currLeftTup == null || currRightTup == null) {
-				return null;
-			}
+//			if (currLeftTup == null || currRightTup == null) {
+//				return null;
+//			}
 			// At this point currRightTup must equalsTo currRightTup, update the pivot
 			pivot = rightIdx;
 			Tuple result = concatenate(currLeftTup, currRightTup);

@@ -106,12 +106,17 @@ public class TupleWriter {
 		/*create a file and open file channel*/
 
 		File file = new File(output.toString());
+		File parent = file.getParentFile();
+		
+		if (!parent.exists() && !parent.mkdirs()) {
+		    throw new IllegalStateException("Couldn't create dir: " + parent);
+		}
+		
 		file.delete();
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -151,18 +156,6 @@ public class TupleWriter {
 
 	}
 
-	/**
-	 * This method is a constructor which is to create the file directory first
-	 * and then use it as the container to create new file
-	 */
-	public TupleWriter(String directory, String fileName) {
-		this(directory + fileName);
-		File folder = new File(directory);
-		if (!folder.exists()) {
-			folder.mkdirs();
-		}
-		File file = new File(directory + fileName);
-	}
 	
 	/**
 	 * This method is to write tuple to both human-readable file & binary file

@@ -54,9 +54,11 @@ public class InMemSortOperator extends Operator{
     		for (Tuple tp : dataCollection) {
     			write.writeTuple(tp);
     		}
+    		write.writeTuple(null);
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
+    	
     }
     
     // like scan Operator, use tupleReader to getNextTuple from a disk file
