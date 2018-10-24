@@ -71,7 +71,7 @@ public abstract class Operator {
 	 * Print out all the output tuple
 	 */
 	public void dump() {
-		reset();
+		//reset();
 		Tuple tuple = getNextTuple();
 		while (tuple != null) {
 			tuple.printData();
