@@ -153,7 +153,7 @@ public class TupleWriter {
 
 	
 	/**
-	 * This method is to write tuple to both humanreadable file & binary file
+	 * This method is to write tuple to both human-readable file & binary file
 	 * 
 	 * @return boolean whether we still have tuple to write or not
 	 */

@@ -2,11 +2,13 @@ package App;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import data.Dynamic_properties;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.select.Select;
 import operators.Operator;
+import util.GlobalLogger;
 import visitors.PhysicalPlanVisitor;
 
 
@@ -52,7 +54,8 @@ public class SQLInterpreter {
 			int index = 1;
 
 			while ((statement = parser.Statement()) != null) {
-				System.out.println("Read statement: " + statement);
+				GlobalLogger.getLogger().info("Read statement: " + statement);
+				//System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
 				LogicalPlanBuilder lb = new LogicalPlanBuilder(select);
 				lb.buildLogicQueryPlan();
@@ -62,14 +65,16 @@ public class SQLInterpreter {
 					root = pv.getPhysicalRoot();
 					writeToFile (index, root);
 				} catch (Exception e) {
-					System.err.println("Exception occurred during paring query" + index);
+					//System.err.println("Exception occurred during paring query" + index);
+					GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);
 			        e.printStackTrace();
 				}
 				index++;	
 			}
 
 		} catch (Exception e){
-			 System.err.println("Exception occurred during parsing");
+			 //System.err.println("Exception occurred during parsing");
+			 GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);
 	         e.printStackTrace();
 		}
 
@@ -85,7 +90,8 @@ public class SQLInterpreter {
 
 	public static void writeToFile (int index, Operator root) throws IOException {
 		root.dump(index);
-		System.out.println("end");
+		GlobalLogger.getLogger().info("end");
+		//System.out.println("end");
 	}
 	
 }
