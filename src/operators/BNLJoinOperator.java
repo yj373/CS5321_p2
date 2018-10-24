@@ -16,8 +16,8 @@ public class BNLJoinOperator extends JoinOperator{
 	private static int size = 4096;
 	/*the next tuple's index*/
 	private int outerTupleIndex;
-	
-	
+
+
 
 	private Tuple innerTuple;
 
@@ -25,7 +25,10 @@ public class BNLJoinOperator extends JoinOperator{
 	private boolean reFillBuffer;
 	private boolean needInnerTuple;
 	private boolean blockLeft;
-	
+	private boolean leftTableEmpty;
+	private boolean rightTableEmpty;
+	private boolean initRightTable;
+
 	/*maximum tuples in the current block*/
 	private int maxTupleNumber;
 
@@ -45,6 +48,9 @@ public class BNLJoinOperator extends JoinOperator{
 		reFillBuffer = true;
 		needInnerTuple = true;
 		blockLeft = true;
+		leftTableEmpty = false;
+		rightTableEmpty = false;
+		initRightTable = false;
 
 		maxTupleNumber = 0;
 		blocknum = 0;
@@ -67,6 +73,10 @@ public class BNLJoinOperator extends JoinOperator{
 			}
 
 		}
+
+		if (maxTupleNumber == 0) {
+			leftTableEmpty = true;
+		}
 		//test
 		System.out.println("现在是block是第几个 "+blocknum);
 		blocknum ++;
@@ -81,6 +91,22 @@ public class BNLJoinOperator extends JoinOperator{
 			if (reFillBuffer) {
 				fillBuffer ();
 				reFillBuffer = false;
+			}
+			
+			/*handle case -- left table is empty*/
+			if (leftTableEmpty) {
+				return null;
+			}
+			
+			/*handle case -- right table is empty*/
+			if (!initRightTable) {
+				innerTuple = rightChild.getNextTuple();
+				if (innerTuple == null) {
+					rightTableEmpty = true;
+					needInnerTuple = false;
+				}
+				
+				initRightTable = false;
 			}
 
 			/*read one tuple from inner relation table*/
@@ -97,49 +123,59 @@ public class BNLJoinOperator extends JoinOperator{
 
 			Tuple rightTuple = innerTuple;
 
-//			//如果outer 还有tuple 右边没到底  -- 左边读一个 右边不变
-//			//如果outer 没有tuple 并且还有block 右边没到底 --左边重置 右边读一个
-//			//如果outer 没有tuple 并且还有block 右边到底了 -- 左边读一个block 右边重置
-//			//如果outer 没有tuple 没有block 右边到底了 -- 返回null
-//			if (outerTupleIndex < bufferTuples.length && rightTuple !=null ) {
-//				outerTupleIndex ++;
-//			} 
-//
-//			//第二种情况
-//			if (outerTupleIndex >= bufferTuples.length && rightTuple !=null) {
-//				outerTupleIndex = 0;
-//				needInnerTuple = true;
-//				continue;
-//			} 
-//
-//			//没有处理  -- block重置以后 inner tuple = null的情况
-//			//处理第二种情况后的 再读入情况 -- outertupleindex = 0 && inner == null
-//			if (rightTuple == null && blockLeft) {
-//
-//				reFillBuffer = true;
-//				rightChild.reset();
-//				needInnerTuple = true;
-//				outerTupleIndex = 0;
-//				continue;
-//			} 
-			
-			
-			if (rightTuple == null) {
-				
-				if (blockLeft) {
+			//			//如果outer 还有tuple 右边没到底  -- 左边读一个 右边不变
+			//			//如果outer 没有tuple 并且还有block 右边没到底 --左边重置 右边读一个
+			//			//如果outer 没有tuple 并且还有block 右边到底了 -- 左边读一个block 右边重置
+			//			//如果outer 没有tuple 没有block 右边到底了 -- 返回null
+			//			if (outerTupleIndex < bufferTuples.length && rightTuple !=null ) {
+			//				outerTupleIndex ++;
+			//			} 
+			//
+			//			//第二种情况
+			//			if (outerTupleIndex >= bufferTuples.length && rightTuple !=null) {
+			//				outerTupleIndex = 0;
+			//				needInnerTuple = true;
+			//				continue;
+			//			} 
+			//
+			//			//没有处理  -- block重置以后 inner tuple = null的情况
+			//			//处理第二种情况后的 再读入情况 -- outertupleindex = 0 && inner == null
+			//			if (rightTuple == null && blockLeft) {
+			//
+			//				reFillBuffer = true;
+			//				rightChild.reset();
+			//				needInnerTuple = true;
+			//				outerTupleIndex = 0;
+			//				continue;
+			//			} 
 
-					reFillBuffer = true;
-					outerTupleIndex = 0;
-					
-					rightChild.reset();
-					needInnerTuple = true;
-					
-					continue;
+
+			if (rightTuple == null) {
+
+				/*read another block*/
+				if (rightTableEmpty && outerTupleIndex < maxTupleNumber) {
+					outerTupleIndex ++;
 				} else {
-					return null;
+					//read another block
+					if (blockLeft) {
+
+						reFillBuffer = true;
+						outerTupleIndex = 0;
+
+						rightChild.reset();
+						needInnerTuple = true;
+
+						continue;
+					} else {
+						return null;
+					}
 				}
-			} else {
 				
+
+
+				
+			} else {
+
 				if (outerTupleIndex < maxTupleNumber) {
 					outerTupleIndex ++;
 				} else {
@@ -147,16 +183,22 @@ public class BNLJoinOperator extends JoinOperator{
 					needInnerTuple = true;
 					continue;
 				}
-				
+
 			}
-			
-	
+
+
 
 
 			/*if we have found the tuple*/
-			res = concatenate(leftTuple, rightTuple);
+			//right is empty
+			if (rightTableEmpty) {
+				res = leftTuple;
+			} else {
+				res = concatenate(leftTuple, rightTuple);
+			}
+			
 			if (judgeExpression(res)) {
-				outerTupleIndex ++;
+				//outerTupleIndex ++;
 				return res;
 			} 
 

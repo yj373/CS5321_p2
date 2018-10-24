@@ -2,6 +2,10 @@ package App;
 
 import data.Dynamic_properties;
 import java.io.FileReader;
+import java.util.logging.Level;
+
+import util.GlobalLogger;
+
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
@@ -19,21 +23,24 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 public class Planner {
 	
 	/**
-	 * to parse quires
+	 * to parse queries
 	 */
 	public void parse_queries() {
 		try {
 			CCJSqlParser parser = new CCJSqlParser(new FileReader(Dynamic_properties.queryPath));
 			Statement statement;
 			while ((statement = parser.Statement()) != null) {
-				System.out.println("Read statement: " + statement);
+				GlobalLogger.getLogger().info("Read statement: " + statement);
+				//System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
 				PlainSelect ps = (PlainSelect)select.getSelectBody();
 				Operator op = generatePlan(ps);
-				System.out.println("Select body is " + select.getSelectBody());
+				GlobalLogger.getLogger().info("Select body is " + select.getSelectBody());
+				//System.out.println("Select body is " + select.getSelectBody());
 			}
 		} catch (Exception e) {
-			System.err.println("Exception occurred during parsing");
+			//System.err.println("Exception occurred during parsing");
+			GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);
 			e.printStackTrace();
 		}
 	}

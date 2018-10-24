@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import util.GlobalLogger;
 /**
  * This class provides function:
  * construct Tuple class to store information of every tuple
@@ -129,7 +130,8 @@ public class Tuple {
 			sb.append(",");
 		}
 		sb.deleteCharAt(sb.length()-1);
-		System.out.println(sb.toString());
+		GlobalLogger.getLogger().info(sb.toString());
+		//System.out.println(sb.toString());
 		
 	}
 	
