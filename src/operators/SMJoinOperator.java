@@ -4,21 +4,24 @@ import java.util.*;
 
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.schema.Column;
 import visitors.LocateExpressionVisitor;
 
 public class SMJoinOperator extends JoinOperator{
 	private List<String> leftSortColumns;
 	private List<String> rightSortColumns;
-	private List<Expression> expList;
+	
 	
 	// Can I extends from JoinOperator? BNLJ may need this, too!
 	private Tuple currLeftTup;
 	private Tuple currRightTup;
-	private Tuple rightPivot;
+	
+	/* the marker of reset position in right table 
+	 * pivot is -1 when it is not in the process of merging. 
+	 * Once the first equal entry pair is found, pivot is set to be rightIdx and 
+	 * remains unchanged in the following merging of equal entry pairs; Then when 
+	 * the first unequal pair is found, reset right table by pivot and set pivot to -1 then.*/
+	private int pivot = -1;
+	private int rightIdx = -1; // The index of currRightTup in right table, -1 when getNextTup() is not called.
 	
 	// extract the columns related to op1 from expression
 	// extract the columns related to op2 from expression, corresponding to sequence of op1
@@ -29,7 +32,6 @@ public class SMJoinOperator extends JoinOperator{
 			exp.accept(locator);
 			leftSortColumns = locator.leftSortColumns();
 			rightSortColumns = locator.rightSortColumns();
-			expList = locator.expList();
 			
 			// Only when join condition exp is not null will we set 
 			// the child to be in-mem-sort operator
@@ -54,44 +56,73 @@ public class SMJoinOperator extends JoinOperator{
 	// Only called after the sort operators having been set up
 	@Override()
 	public Tuple getNextTuple() {
-		// if joinCondition is null, SMJ join is the same as TNLJ.
+		/* corner case 1: if joinCondition is null, SMJ join is the same as TNLJ. */
 		if (exp == null) {
 			return super.getNextTuple();
 		}
-		// as join condition is not null, as long as there is one empty table, return null;
+		/* corner case 2: Since join condition is not null, as long as there 
+		 * is one empty table, return null */
 		if (leftChild.isEmptyTable() || rightChild.isEmptyTable()) {
 			return null;
 		}
+		
+        /* corner case 3: beginning of the merge process */
 		if (currLeftTup == null && currRightTup == null) {
 			currLeftTup = leftChild.getNextTuple();
 			currRightTup = rightChild.getNextTuple();
+			rightIdx ++;
 		}
-      		
-		/* If currLeftTup and currRightTup are both null, it is the start of join
-		 *  If currLeftTup is null but currRightTup is not null, it is the end of join 
-		 */
-		while (currLeftTup != null && currRightTup != null) {
-			while (compareBtwnTable(currLeftTup, currRightTup) > 0) {
-				currRightTup = rightChild.getNextTuple();
-				// what if currRight == null ?
-			}
-			while (compareBtwnTable(currLeftTup, currRightTup) < 0) {
-			    currLeftTup = leftChild.getNextTuple();
-			    // what if currLeft == null ?
-			}
-			rightPivot = currRightTup;
-			while (compareBtwnTable(currLeftTup, currRightTup) == 0) {
-				currRightTup = rightPivot;
-				while (compareBtwnTable(currLeftTup, currRightTup) == 0) {
-					
+		/* corner case 4: end of the merge process*/
+		if (currLeftTup == null || currRightTup == null) {
+			return null;
+		}
+
+		/* When currLeftTup != null && currRightTup != null */
+
+		// pivot is the marker of reset position.
+		// If we do not need to reset Right partition scan yet, pivot is -1.
+		if (pivot < 0) {
+			int comprRes = 0;
+			while ((currLeftTup != null && currRightTup != null) &&
+					(comprRes = compareBtwnTable(currLeftTup, currRightTup)) != 0) {
+				if (comprRes > 0) {
+					currRightTup = rightChild.getNextTuple();
+					rightIdx ++;
+					// what if currRight == null ?
+				} else {
+					currLeftTup = leftChild.getNextTuple();
+					// what if currLeft == null ?
 				}
 			}
-			currRightTup = rightPivot;
+			if (currLeftTup == null || currRightTup == null) {
+				return null;
+			}
+			// At this point currRightTup must equalsTo currRightTup, update the pivot
+			pivot = rightIdx;
+			Tuple result = concatenate(currLeftTup, currRightTup);
+			currRightTup = rightChild.getNextTuple();
+			rightIdx ++;
+			return result;
+		}			
+		// pivot is non-negative, which means we need to reset RightTable by index if needed
+		if (compareBtwnTable(currLeftTup, currRightTup) == 0) {
+			Tuple result = concatenate(currLeftTup, currRightTup);
+			currRightTup = rightChild.getNextTuple();
+			rightIdx ++;
+			return result;
+			// reset the rightTable, after the reset, pivot is -1 again because we do not need
+		} else {
+			currLeftTup = leftChild.getNextTuple();
+			rightChild.reset(pivot);
+			currRightTup = rightChild.getNextTuple();
+			rightIdx = pivot;
+			pivot = -1;
+			return this.getNextTuple();
 		}
-		return null;
+
 	}
 	
-	// differing from the compare function in sortOperator, in this function we compare
+	// DIFFERENT from the compare function in sortOperator, in this function we compare
 	// two tuples from two tables with different schemas.
 	// o1: must be the tuple from LEFT table;
 	// o2: must be the tuple from RIGHT table;

@@ -52,7 +52,6 @@ public class LocateExpressionVisitor implements ExpressionVisitor {
 	private List<String> leftSortColumns = new ArrayList<>();
 	// columns to be used when sorting right child
 	private List<String> rightSortColumns = new ArrayList<>();
-	private List<Expression> expressionList = new ArrayList<>();
 	
 	// schema of leftChild, determined by fromItem in plainSelect
 	private Map<String, Integer> leftSchema;	
@@ -63,10 +62,6 @@ public class LocateExpressionVisitor implements ExpressionVisitor {
 	public LocateExpressionVisitor(Map<String, Integer> schema1, Map<String, Integer> schema2) {
 		this.leftSchema = schema1;
 		this.rightSchema = schema2;
-	}
-	
-	public List<Expression> expList() {
-		return expressionList;
 	}
 	
 	public List<String> leftSortColumns() {
@@ -84,7 +79,6 @@ public class LocateExpressionVisitor implements ExpressionVisitor {
 				(arg0.getRightExpression() instanceof Column)) {
 			
 			// add this equation to expressionList
-			expressionList.add(new EqualsTo(arg0.getLeftExpression(), arg0.getRightExpression()));
 			String columnLeft = ((Column)arg0.getLeftExpression()).getWholeColumnName();
 			String columnRight = ((Column)arg0.getRightExpression()).getWholeColumnName();
 			

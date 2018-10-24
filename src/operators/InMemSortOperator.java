@@ -44,9 +44,9 @@ public class InMemSortOperator extends Operator{
     private void writeSortedBinary(List<Tuple> dataCollection) {
     	StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
     	if (sortColumns == null) {
-    		output.append("/in-memory-sort/sortBy" + sortColumns.get(0));
-    	} else {
     		output.append("/in-memory-sort/no-condition-found");
+    	} else {
+    		output.append("/in-memory-sort/sortBy" + sortColumns.get(0));
     	}
     	this.tempFileAddress = output.toString();
     	TupleWriter write = new TupleWriter(output.toString());

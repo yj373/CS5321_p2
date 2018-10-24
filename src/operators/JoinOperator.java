@@ -40,7 +40,7 @@ public class JoinOperator extends Operator{
 	@Override
 	public Tuple getNextTuple() {
 		Tuple t = getNextPureTuple();
-		if(t!=null) {
+		if(t!=null && exp != null) {
 			while(!judgeExpression(t)) {
 				t = getNextPureTuple();
 				if (t==null) break;
