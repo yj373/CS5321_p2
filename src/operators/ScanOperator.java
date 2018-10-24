@@ -109,7 +109,30 @@ public class ScanOperator extends Operator{
 		//modification
 		schema = tr.getSchema();
 	}
-	
+	/** 
+	 * This method is a constructor which is to
+	 * initialize related fields.
+	 * 
+	 * @param tableInfo table information
+	 * 
+	 */
+	public ScanOperator(String tableInfo) {
+		String[] aimTable = tableInfo.split("\\s+");
+		if (aimTable.length<1) {
+			this.tableName = null;
+			return;
+		}
+		this.tableName = aimTable[0];
+		this.tableAddress = DataBase.getInstance().getAddresses(tableName);
+		this.tableFile = new File(tableAddress);
+		this.tr = new TupleReader(tableInfo);
+		this.tableAliase = aimTable[aimTable.length-1];
+		this.attributes = DataBase.getInstance().getSchema(tableName);
+		//setExpression(expression);
+		
+		//modification
+		schema = tr.getSchema();
+	}
 	/** 
 	 * This method is a constructor which is to
 	 * initialize related fields.
