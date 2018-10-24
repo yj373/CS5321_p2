@@ -156,7 +156,12 @@ public class TupleWriter {
 	 * and then use it as the container to create new file
 	 */
 	public TupleWriter(String directory, String fileName) {
-		
+		this(directory + fileName);
+		File folder = new File(directory);
+		if (!folder.exists()) {
+			folder.mkdirs();
+		}
+		File file = new File(directory + fileName);
 	}
 	
 	/**
