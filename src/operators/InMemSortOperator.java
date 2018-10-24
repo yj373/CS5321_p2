@@ -42,7 +42,7 @@ public class InMemSortOperator extends Operator{
     //Initializing function:
     /* dump the data to the disk with tupleWriter */
     private void writeSortedBinary(List<Tuple> dataCollection) {
-    	StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
+    	StringBuilder output = new StringBuilder(Dynamic_properties.tempPath);
     	if (sortColumns == null) {
     		output.append("/in-memory-sort/no-condition-found");
     	} else {
