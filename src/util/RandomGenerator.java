@@ -21,6 +21,8 @@ public class RandomGenerator {
 	private int numAttribute;
 	
 	
+	
+	
 	//Constructors
 	public RandomGenerator(int up, int low, int num, String add, Map<String, Integer> sch) {
 		this.upperBound = up;
