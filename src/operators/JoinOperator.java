@@ -54,7 +54,7 @@ public class JoinOperator extends Operator{
 		/* Corner Case: when there are less than two operators under join operator.*/
 		Operator left = getLeftChild();
 		Operator right = getRightChild();
-		if (left== null && right == null) {
+		if (left == null && right == null) {
 			return null;
 		}
 		if (left == null || right == null) {
@@ -69,26 +69,30 @@ public class JoinOperator extends Operator{
 				currLeftTup = left.getNextTuple();
 				currRightTup = right.getNextTuple();
 
-				// if leftTable is null or right table is empty 
+				// if right table is empty 
 				if(currRightTup == null) {
 					if (this.getExpression() == null) {
-						return judgeExpression(currLeftTup) ? currLeftTup : this.getNextTuple();
+						return currLeftTup;
 					}else {
 						return null;
 					}
 
 				}
+				// if right table is not empty, but left table is empty
 				if(currLeftTup == null) {
 					if (this.getExpression() == null) {
-						return judgeExpression(currRightTup) ? currRightTup : this.getNextTuple();
+						return currRightTup;
 					}else {
 						return null;
 					}
 				}
 			} else {
+				// left tuple is null but right tuple is not null, the end 
+				// of file or left table if empty
 				return null;
 			}
 		} else {
+		// currLeft is not null
 			if (currRightTup == null) {
 				right.reset();
 				currLeftTup = left.getNextTuple();
@@ -97,6 +101,9 @@ public class JoinOperator extends Operator{
 				currRightTup = right.getNextTuple();	
 			}	    	
 		}
+		
+		// After dealing with all null and not null cases, we exclude 
+		// The empty table cases.
 
 		if ( currLeftTup != null && currRightTup != null) {
 			Tuple res = concatenate(currLeftTup, currRightTup);
@@ -154,7 +161,7 @@ public class JoinOperator extends Operator{
 		}
 
 		return schema;
-	}
+	}	
 
 	/**
 	 * Reset the JoinOperator so that when next time getNextTuple is called, it returns 

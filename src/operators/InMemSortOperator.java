@@ -22,7 +22,7 @@ public class InMemSortOperator extends Operator{
 		this.tr = new TupleReader(this.tempFileAddress, this.schema);
 	}
     
-    // Initializing func:
+    // Initializing function:
     // sorted the array with comparator
     private void readSortWrite() {
     	List<Tuple> dataCollection = new ArrayList<>();
@@ -39,11 +39,15 @@ public class InMemSortOperator extends Operator{
     	writeSortedBinary(dataCollection);
     }
     
-    //Initializing func:
+    //Initializing function:
     /* dump the data to the disk with tupleWriter */
     private void writeSortedBinary(List<Tuple> dataCollection) {
     	StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
-    	output.append("/in-memory-sort/sortBy" + sortColumns.get(0));
+    	if (sortColumns == null) {
+    		output.append("/in-memory-sort/sortBy" + sortColumns.get(0));
+    	} else {
+    		output.append("/in-memory-sort/no-condition-found");
+    	}
     	this.tempFileAddress = output.toString();
     	TupleWriter write = new TupleWriter(output.toString());
     	try {
@@ -93,14 +97,6 @@ public class InMemSortOperator extends Operator{
 						return -1;
 					} 
 					if (o1.getData()[col] > o2.getData()[col]){
-						return 1;
-					} 
-				}
-				for (int i = 0; i < schema.size(); i++) {
-					if (o1.getData()[i] < o2.getData()[i]) {
-						return -1;
-					} 
-					if (o1.getData()[i] > o2.getData()[i]){
 						return 1;
 					} 
 				}
