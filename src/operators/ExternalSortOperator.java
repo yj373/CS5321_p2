@@ -275,7 +275,7 @@ public class ExternalSortOperator extends Operator{
 	}
 	private int getFilePassNum(String fileName) {
 		String[] s = fileName.split("_");
-		if (s[s.length-1].equals("humanhumanreadable")) {
+		if (s[s.length-1].equals("humanreadable")) {
 			return Integer.valueOf(s[s.length-4]);
 		}else return Integer.valueOf(s[s.length-3]);
 		
@@ -302,7 +302,7 @@ public class ExternalSortOperator extends Operator{
 		this.scratchFiles = tempDir.listFiles();
 		passNum = 1;
 		fileNum = 0;
-		while (scratchFiles.length > 1) {
+		while (scratchFiles.length > 2) {
 			int i = 0;//index of scratch files
 			int j = 0;//index of tuple readers
 			//Execute a pass
@@ -312,11 +312,20 @@ public class ExternalSortOperator extends Operator{
 				while (j < trs.length) {
 					//if (j >= scratchFiles.length) break;
 					String fileName = scratchFiles[i].getName();
+					String[] s  = fileName.split("_");
+					if(s[s.length-1].equals("humanreadable")) {
+						//skip human readable files
+						i++;
+						continue;
+					}
 					int filePassNum = getFilePassNum(fileName);
 					if (filePassNum < passNum) {
-						String fileAddress = getFileAddress(fileName);
-						deleteFiles.add(new File(fileAddress));
-						trs[j] = new TupleReader(fileAddress, this.schema);
+						//Delete files of last pass
+						String fileAddress1 = getFileAddress(fileName);
+						String fileAddress2 = fileAddress1 + "_humanreadable";
+						deleteFiles.add(new File(fileAddress1));
+						deleteFiles.add(new File(fileAddress2));
+						trs[j] = new TupleReader(fileAddress1, this.schema);
 						j++;
 					}
 					i++;
@@ -378,13 +387,29 @@ public class ExternalSortOperator extends Operator{
 
 	@Override
 	public Tuple getNextTuple() {
-		// TODO Auto-generated method stub
+		try {
+			sort();
+			if(this.scratchFiles.length==2) {
+				String fileName = scratchFiles[1].getName();
+				String fileAddress = getFileAddress(fileName);
+				trs[0] = new TupleReader(fileAddress, this.schema);
+				return trs[0].readNextTuple();
+			}else {
+				System.out.println("the number of scratch files is wrong!");
+				return null;
+			}
+		}catch(Exception e) {
+			System.out.println("Exception occurs in external sort");
+			e.getMessage();
+			e.printStackTrace();
+		}
+		
 		return null;
 	}
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
+		this.trs[0].reset();
 		
 	}
 	/**
