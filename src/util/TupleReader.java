@@ -298,6 +298,7 @@ public class TupleReader {
 		this.bufferPosition = 0;
 		this.filePosition = 0;
 		this.empty = true;
+		pageNumber = 0;
 	}
 	
 	public void resetBuffer(int index) {
