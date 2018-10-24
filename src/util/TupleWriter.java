@@ -153,11 +153,12 @@ public class TupleWriter {
 
 	
 	/**
-	 * This method is to write tuple to both humanreadable file & binary file
+	 * This method is to write tuple to both human-readable file & binary file
 	 * 
 	 * @return boolean whether we still have tuple to write or not
 	 */
 	public boolean writeTuple(Tuple tuple) throws IOException {
+		
 		writeReadableTuple(tuple);
 		return  writeBinaryTuple(tuple);
 
@@ -172,7 +173,9 @@ public class TupleWriter {
 
 		if (tuple != null) {
 			tuple.printData();
+			//Logger.println(tuple.getTupleData().toString());
 			humanbw.write(tuple.getTupleData().toString() + '\n');
+			
 		} 
 	}
 
@@ -205,8 +208,10 @@ public class TupleWriter {
 		if (!checkInit) {
 			attributeNumber = tuple.getSchema().keySet().size();
 			buffer.limit();
-			System.out.println(buffer.limit() - metasize);
-			System.out.println(attributeNumber * 4);
+			
+//			System.out.println(buffer.limit() - metasize);
+//			System.out.println(attributeNumber * 4);
+			
 			maxTupleNumber = (buffer.limit() - metasize)/(attributeNumber * 4);
 			checkInit = true;
 		}

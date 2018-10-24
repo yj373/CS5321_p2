@@ -15,7 +15,7 @@ import data.Dynamic_properties;
  *
  */
 public class Logger {
-	/* ingleton pattern, only one loggerInstance is allowed */
+	/* singleton pattern, only one loggerInstance is allowed */
     private static Logger loggerInstance = null;
     
     /* non static fields are all fields of the single instance */
