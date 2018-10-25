@@ -1,64 +1,84 @@
 package operators;
 
-import java.util.Map;
-
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * This class provides function:
+ * 
+ * Doing Block Nested Loop Join
+ * 
+ * 
+ * @author Xiaoxing Yan
+ */
+
+
 public class BNLJoinOperator extends JoinOperator{
 
-	//	private Operator leftChild;
-	//	private Operator rightChild;
-	//	private Expression exp;
 
+	/*buffer for storing Tuples*/
 	private Tuple[] bufferTuples;
 	/*the size of one page in bytes*/
 	private static int size = 4096;
 	/*the next tuple's index*/
 	private int outerTupleIndex;
-
-
-
+	/*Tuple read from inner relation*/
 	private Tuple innerTuple;
-
-
+	/*check whether a new block needed to be loaded*/
 	private boolean reFillBuffer;
+	/*check whether to read a new inner tuple or not*/
 	private boolean needInnerTuple;
+	/*check whether a block left for outer reltion */
 	private boolean blockLeft;
-	private boolean leftTableEmpty;
-	private boolean rightTableEmpty;
-	private boolean initRightTable;
-
 	/*maximum tuples in the current block*/
 	private int maxTupleNumber;
+	
+	/*variables to check the empty table*/
+	private boolean initLeftTable;
+	private boolean leftTableEmpty;
+	private boolean initRightTable;
+	private boolean rightTableEmpty;
+	
 
-	//for test 
-	private int blocknum;
 
-
+	/** 
+	 * This method is a constructor which is to
+	 * initialize related fields.
+	 * 
+	 * @param op1 left operator
+	 * @param op2 right operator
+	 * @param expression
+	 * @param bufferPage number of pages in a buffer
+	 * 
+	 */
 	public BNLJoinOperator(Operator op1, Operator op2, Expression expression, int bufferPage) {
 
 		super(op1, op2, expression);
 
 		/*calculate the number of tuples in this buffer and prepare buffer*/
 		int numberTuples = (int)(bufferPage * size)/(op1.schema.size() *4);
+		
 		bufferTuples = new Tuple[numberTuples];
 		outerTupleIndex = 0;
-
 		reFillBuffer = true;
 		needInnerTuple = true;
 		blockLeft = true;
-		leftTableEmpty = false;
-		rightTableEmpty = false;
-		initRightTable = false;
-
 		maxTupleNumber = 0;
-		blocknum = 0;
+	
+		initLeftTable = false;
+		leftTableEmpty = false;
+		initRightTable =false;
+		rightTableEmpty =false;
 
 	}
 
-	public void fillBuffer () {
 
+	/**
+	 * the method provides function:
+	 * 
+	 * refill blocks 
+	 */
+	public void fillBuffer () {
 
 		maxTupleNumber = 0;
 		for(int i=0; i< bufferTuples.length; i++) {
@@ -71,50 +91,62 @@ public class BNLJoinOperator extends JoinOperator{
 				blockLeft = false;
 				break;
 			}
-
 		}
-
-		if (maxTupleNumber == 0) {
-			leftTableEmpty = true;
+		
+		/*check the empty state of left table*/
+		if (!initLeftTable) {
+			initLeftTable = true;
+			if (maxTupleNumber == 0) {
+				leftTableEmpty = true;
+			}
 		}
-		//test
-		System.out.println("现在是block是第几个 "+blocknum);
-		blocknum ++;
-
 	}
 
+	/**
+	 * @return the Tuple joined from the leftChild Operator and rightChild Operator.
+	 */
 	@Override
 	public Tuple getNextTuple(){
 
+		/* corner case 1: if joinCondition is null, BNJ join is the same as TNLJ. */
+		if (exp == null) {
+			return super.getNextTuple();
+		}
+
+		/* corner case 2: Since join condition is not null, as long as there 
+		 * is one empty table, return null */		
+		if (leftTableEmpty || rightTableEmpty) {
+			return null;
+		}
+
 		while (true) {
+
 			/*fill the buffer for outer relation table*/
 			if (reFillBuffer) {
 				fillBuffer ();
 				reFillBuffer = false;
-			}
-			
-			/*handle case -- left table is empty*/
-			if (leftTableEmpty) {
-				return null;
-			}
-			
-			/*handle case -- right table is empty*/
-			if (!initRightTable) {
-				innerTuple = rightChild.getNextTuple();
-				if (innerTuple == null) {
-					rightTableEmpty = true;
-					needInnerTuple = false;
-				}
-				
-				initRightTable = false;
 			}
 
 			/*read one tuple from inner relation table*/
 			if (needInnerTuple) {
 				innerTuple = rightChild.getNextTuple();
 				needInnerTuple = false;
+				
+				/*check the empty state of right table*/
+				if (!initRightTable) {
+					initRightTable = true;
+					if (innerTuple == null ) {
+						rightTableEmpty = true;
+					}
+				}
 			}
 
+			
+			if (leftTableEmpty || rightTableEmpty) {
+				return null;
+			}
+			
+			
 			Tuple res = null;
 			Tuple leftTuple = null;
 			if (outerTupleIndex < maxTupleNumber) {
@@ -123,62 +155,31 @@ public class BNLJoinOperator extends JoinOperator{
 
 			Tuple rightTuple = innerTuple;
 
-			//			//如果outer 还有tuple 右边没到底  -- 左边读一个 右边不变
-			//			//如果outer 没有tuple 并且还有block 右边没到底 --左边重置 右边读一个
-			//			//如果outer 没有tuple 并且还有block 右边到底了 -- 左边读一个block 右边重置
-			//			//如果outer 没有tuple 没有block 右边到底了 -- 返回null
-			//			if (outerTupleIndex < bufferTuples.length && rightTuple !=null ) {
-			//				outerTupleIndex ++;
-			//			} 
-			//
-			//			//第二种情况
-			//			if (outerTupleIndex >= bufferTuples.length && rightTuple !=null) {
-			//				outerTupleIndex = 0;
-			//				needInnerTuple = true;
-			//				continue;
-			//			} 
-			//
-			//			//没有处理  -- block重置以后 inner tuple = null的情况
-			//			//处理第二种情况后的 再读入情况 -- outertupleindex = 0 && inner == null
-			//			if (rightTuple == null && blockLeft) {
-			//
-			//				reFillBuffer = true;
-			//				rightChild.reset();
-			//				needInnerTuple = true;
-			//				outerTupleIndex = 0;
-			//				continue;
-			//			} 
-
-
 			if (rightTuple == null) {
 
-				/*read another block*/
-				if (rightTableEmpty && outerTupleIndex < maxTupleNumber) {
-					outerTupleIndex ++;
+				/*case 1: for one block, have iterated all tuples within inner relation*/
+				if (blockLeft) {
+
+					reFillBuffer = true;
+					outerTupleIndex = 0;
+					rightChild.reset();
+					needInnerTuple = true;
+
+					continue;
+
 				} else {
-					//read another block
-					if (blockLeft) {
-
-						reFillBuffer = true;
-						outerTupleIndex = 0;
-
-						rightChild.reset();
-						needInnerTuple = true;
-
-						continue;
-					} else {
-						return null;
-					}
+					/*case 2: have iterated all tuples within outer and inner relation*/
+					return null;
 				}
-				
 
-
-				
 			} else {
 
+				/*case 3: for one block, keep joining tuples with current inner tuple*/
 				if (outerTupleIndex < maxTupleNumber) {
 					outerTupleIndex ++;
 				} else {
+
+					/*case 4: for one block, read the next inner tuple and join*/
 					outerTupleIndex = 0;
 					needInnerTuple = true;
 					continue;
@@ -186,22 +187,11 @@ public class BNLJoinOperator extends JoinOperator{
 
 			}
 
-
-
-
-			/*if we have found the tuple*/
-			//right is empty
-			if (rightTableEmpty) {
-				res = leftTuple;
-			} else {
-				res = concatenate(leftTuple, rightTuple);
-			}
-			
+			/*if the tuple has passed the join condition, return it*/
+			res = concatenate(leftTuple, rightTuple);
 			if (judgeExpression(res)) {
-				//outerTupleIndex ++;
 				return res;
 			} 
-
 		}
 
 

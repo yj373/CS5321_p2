@@ -54,7 +54,16 @@ public class SQLInterpreter {
 			int index = 1;
 
 			while ((statement = parser.Statement()) != null) {
+
+				/**calculate spend time*/
+				long startTime=System.currentTimeMillis();    
+				GlobalLogger.getLogger().info("TIME START " + startTime);
+				long endTime = 0;
+				
+				
+				
 				GlobalLogger.getLogger().info("Read statement: " + statement);
+				
 				//System.out.println("Read statement: " + statement);
 				Select select = (Select) statement;
 				LogicalPlanBuilder lb = new LogicalPlanBuilder(select);
@@ -63,7 +72,13 @@ public class SQLInterpreter {
 				try {
 					lb.getRoot().accept(pv);
 					root = pv.getPhysicalRoot();
+					
+					/*get the ending time*/
+					endTime=System.currentTimeMillis();  
 					writeToFile (index, root);
+					GlobalLogger.getLogger().info("time spent： "+(endTime - startTime)+"ms"); 
+		
+					
 				} catch (Exception e) {
 					//System.err.println("Exception occurred during paring query" + index);
 					GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);

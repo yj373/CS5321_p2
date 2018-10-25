@@ -23,7 +23,7 @@ public abstract class Operator {
 	// Marker to indicate if we checked the table beneath the operator is empty or not
 	// checkIfEmpty[0] indicates if we checked before;
 	// checkIfEmpty[1] indicates if it is empty
-	private boolean[] checkIfEmpty = new boolean[2];
+	private boolean[] checkIfEmpty =  new boolean[2];;
 
 	/**
 	 * get child operator

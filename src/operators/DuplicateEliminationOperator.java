@@ -56,8 +56,10 @@ public class DuplicateEliminationOperator extends Operator{
 					t = child.getNextTuple();
 				}
 			}
+			
 		}
 		prevTuple = t;
+		
 
 		return t;
 	}
@@ -108,6 +110,7 @@ public class DuplicateEliminationOperator extends Operator{
 		return true;
 
 	}
+	
 
 
 

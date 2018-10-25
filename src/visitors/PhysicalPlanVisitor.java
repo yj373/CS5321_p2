@@ -13,6 +13,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import operators.BNLJoinOperator;
+import operators.DuplicateEliminationOperator;
 import operators.JoinOperator;
 import operators.Operator;
 import operators.ProjectOperator;
@@ -80,7 +81,7 @@ public class PhysicalPlanVisitor {
 		
 		//for yxx's test
 		//JoinOperator join = new JoinOperator(left, right, exp);
-		JoinOperator join = new SMJoinOperator(left, right, exp);
+		JoinOperator join = new BNLJoinOperator(left, right, exp, 2);
 		
 		
 		
@@ -141,7 +142,8 @@ public class PhysicalPlanVisitor {
 		}
 		PlainSelect sI = operator.getPlainSelect();
 		Operator left = childList.pollLast();
-		ProjectOperator distinct = new ProjectOperator(sI, left);
+		DuplicateEliminationOperator distinct = new DuplicateEliminationOperator(sI, left);
+		
 		childList.add(distinct);
 		root = distinct;
 	}
