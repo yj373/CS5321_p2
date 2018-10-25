@@ -327,11 +327,12 @@ public class TupleReader {
 				close();
 				reset();
 			} 
+			tupleNumber = buffer.getInt(4) - numLast;
 			empty = false;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		resetBuffer(numLast * (4 * this.schema.size()));
+		resetBuffer(numLast * (4 * this.schema.size()) + 8);
 	}
 
 }
