@@ -67,20 +67,12 @@ public class SMJoinOperator extends JoinOperator{
 			return null;
 		}
 		
-        /* corner case 3: beginning of the merge process */
+		/* corner case 3: beginning of the merge process */
 		if (currLeftTup == null && currRightTup == null) {
 			currLeftTup = leftChild.getNextTuple();
 			currRightTup = rightChild.getNextTuple();
 			rightIdx ++;
 		}
-		
-//		////// debug//////
-//		if (rightIdx == 999) {
-//			System.out.println("warning!");
-//			rightChild.reset(rightIdx);
-//			currRightTup = rightChild.getNextTuple();
-//		}
-//		/////
 		
 		/* corner case 4: reach the end of the merge process directly when leftTable reaches end;
 		 * for right table, it may need to be reset to pivot when it returns null tuple*/
