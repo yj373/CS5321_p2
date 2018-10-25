@@ -60,20 +60,23 @@ public class SMJoinOperator extends JoinOperator{
 		if (exp == null) {
 			return super.getNextTuple();
 		}
+		
 		/* corner case 2: Since join condition is not null, as long as there 
 		 * is one empty table, return null */
 		if (leftChild.isEmptyTable() || rightChild.isEmptyTable()) {
 			return null;
 		}
 		
-        /* corner case 3: beginning of the merge process */
+		/* corner case 3: beginning of the merge process */
 		if (currLeftTup == null && currRightTup == null) {
 			currLeftTup = leftChild.getNextTuple();
 			currRightTup = rightChild.getNextTuple();
 			rightIdx ++;
 		}
-		/* corner case 4: end of the merge process*/
-		if (currLeftTup == null || currRightTup == null) {
+		
+		/* corner case 4: reach the end of the merge process directly when leftTable reaches end;
+		 * for right table, it may need to be reset to pivot when it returns null tuple*/
+		if (currLeftTup == null) {
 			return null;
 		}
 
@@ -88,10 +91,8 @@ public class SMJoinOperator extends JoinOperator{
 				if (comprRes > 0) {
 					currRightTup = rightChild.getNextTuple();
 					rightIdx ++;
-					// what if currRight == null ?
 				} else {
 					currLeftTup = leftChild.getNextTuple();
-					// what if currLeft == null ?
 				}
 			}
 			if (currLeftTup == null || currRightTup == null) {
@@ -105,12 +106,15 @@ public class SMJoinOperator extends JoinOperator{
 			return result;
 		}			
 		// pivot is non-negative, which means we need to reset RightTable by index if needed
-		if (compareBtwnTable(currLeftTup, currRightTup) == 0) {
+		
+		// In the case below, the case of currLeft == null has been ruled out at the very beginning in corner case 4
+		// Therefore we only need to consider if currRightTup == null
+		if (currRightTup != null && compareBtwnTable(currLeftTup, currRightTup) == 0) {
 			Tuple result = concatenate(currLeftTup, currRightTup);
 			currRightTup = rightChild.getNextTuple();
 			rightIdx ++;
 			return result;
-			// reset the rightTable, after the reset, pivot is -1 again because we do not need
+			// reset the rightTable, after the reset, pivot is -1 again because we do not need reset yet.
 		} else {
 			currLeftTup = leftChild.getNextTuple();
 			rightChild.reset(pivot);

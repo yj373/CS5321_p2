@@ -106,12 +106,17 @@ public class TupleWriter {
 		/*create a file and open file channel*/
 
 		File file = new File(output.toString());
+		File parent = file.getParentFile();
+		
+		if (!parent.exists() && !parent.mkdirs()) {
+		    throw new IllegalStateException("Couldn't create dir: " + parent);
+		}
+		
 		file.delete();
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
