@@ -4,13 +4,22 @@ import data.Tuple;
 import util.RandomGenerator;
 import util.TupleReader;
 
+/**
+ * This class provides function:
+ * 
+ * generate experiments files
+ * 
+ * 
+ * @author Xiaoxing Yan
+ */
+
 public class experiments {
 	
-	public void main (String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		
-		TupleReader test = new TupleReader("Boats AS B");
+		TupleReader test = new TupleReader("Reserves AS R");
 		Tuple tuple = test.readNextTuple();
-		String address = "src/randomGenerated/Boats";
+		String address = "src/randomGenerated/Reserves";
 		int up = 10000;
 		int low = 0;
 		int num = 6000;

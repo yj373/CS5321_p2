@@ -3,6 +3,16 @@ package operators;
 import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 
+/**
+ * This class provides function:
+ * 
+ * Doing Block Nested Loop Join
+ * 
+ * 
+ * @author Xiaoxing Yan
+ */
+
+
 public class BNLJoinOperator extends JoinOperator{
 
 
@@ -83,9 +93,11 @@ public class BNLJoinOperator extends JoinOperator{
 			}
 		}
 		
-		if (!initLeftTable && maxTupleNumber == 0) {
+		if (!initLeftTable) {
 			initLeftTable = true;
-			leftTableEmpty = true;
+			if (maxTupleNumber == 0) {
+				leftTableEmpty = true;
+			}
 		}
 	}
 
@@ -106,21 +118,12 @@ public class BNLJoinOperator extends JoinOperator{
 //			return null;
 //		}
 		
-//		if (leftTableEmpty || rightTableEmpty) {
-//			return null;
-//		}
+		if (leftTableEmpty || rightTableEmpty) {
+			return null;
+		}
 
 		while (true) {
-			
-			
-	
-			
-			
-			
-			
-			
-			
-			
+
 			/*fill the buffer for outer relation table*/
 			if (reFillBuffer) {
 				fillBuffer ();
@@ -132,16 +135,18 @@ public class BNLJoinOperator extends JoinOperator{
 				innerTuple = rightChild.getNextTuple();
 				needInnerTuple = false;
 				
-//				if (!initRightTable && innerTuple == null ) {
-//					initRightTable = true;
-//					rightTableEmpty = true;
-//				}
+				if (!initRightTable) {
+					initRightTable = true;
+					if (innerTuple == null ) {
+						rightTableEmpty = true;
+					}
+				}
 			}
 
 			
-//			if (leftTableEmpty || rightTableEmpty) {
-//				return null;
-//			}
+			if (leftTableEmpty || rightTableEmpty) {
+				return null;
+			}
 			
 			
 			Tuple res = null;
