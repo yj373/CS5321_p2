@@ -6,15 +6,16 @@ import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import visitors.LocateExpressionVisitor;
 
+/**
+ * SMJoin Operator
+ * @author Ruoxuan Xu
+ *
+ */
+
 public class SMJoinOperator extends JoinOperator{
 	private List<String> leftSortColumns;
 	private List<String> rightSortColumns;
-	
-	
-	// Can I extends from JoinOperator? BNLJ may need this, too!
-	private Tuple currLeftTup;
-	private Tuple currRightTup;
-	
+
 	/* the marker of reset position in right table 
 	 * pivot is -1 when it is not in the process of merging. 
 	 * Once the first equal entry pair is found, pivot is set to be rightIdx and 
@@ -23,10 +24,17 @@ public class SMJoinOperator extends JoinOperator{
 	private int pivot = -1;
 	private int rightIdx = -1; // The index of currRightTup in right table, -1 when getNextTup() is not called.
 	
-	// extract the columns related to op1 from expression
-	// extract the columns related to op2 from expression, corresponding to sequence of op1
+	/* extract the columns related to op1 from expression
+	 * extract the columns related to op2 from expression, corresponding to sequence of op1
+	 */
 	public SMJoinOperator(Operator op1, Operator op2, Expression expression) {
 		super(op1, op2, expression);
+		StringBuilder sb = new StringBuilder();
+		sb.append("smj-");
+		sb.append(op1.name);
+		sb.append("-");
+		sb.append(op2.name);
+		name = sb.toString();
 		if (exp != null) {
 			LocateExpressionVisitor locator = new LocateExpressionVisitor(op1.schema, op2.schema);
 			exp.accept(locator);
@@ -35,12 +43,12 @@ public class SMJoinOperator extends JoinOperator{
 			
 			// Only when join condition exp is not null will we set 
 			// the child to be in-mem-sort operator
-			setSortOperator();
+			//setSortOperator();
 		}
 	}
 
-	// Set the sortOperator according to the config file;
-	// Use in-mem-sort for current process.
+	/* Set the sortOperator according to the config file;*/
+	/* Use in-mem-sort for current process.*/
 	private void setSortOperator() {
 		if (leftChild != null) {
 			Operator originalLeft = leftChild;
@@ -105,7 +113,8 @@ public class SMJoinOperator extends JoinOperator{
 			rightIdx ++;
 			return result;
 		}			
-		// pivot is non-negative, which means we need to reset RightTable by index if needed
+		
+		/* pivot is non-negative, which means we need to reset RightTable by index if needed*/
 		
 		// In the case below, the case of currLeft == null has been ruled out at the very beginning in corner case 4
 		// Therefore we only need to consider if currRightTup == null
@@ -126,10 +135,17 @@ public class SMJoinOperator extends JoinOperator{
 
 	}
 	
-	// DIFFERENT from the compare function in sortOperator, in this function we compare
-	// two tuples from two tables with different schemas.
-	// o1: must be the tuple from LEFT table;
-	// o2: must be the tuple from RIGHT table;
+	
+	/**
+	 * DIFFERENT from the compare function in sortOperator, in this function we compare
+	 * two tuples from two tables with different schemas.
+	 * o1: must be the tuple from LEFT table;
+	 * o2: must be the tuple from RIGHT table;
+	 * 
+	 * @param o1
+	 * @param o2
+	 * @return int
+	 */
 	private int compareBtwnTable(Tuple o1, Tuple o2) {
 		if (leftSortColumns != null && rightSortColumns != null) {
 			for (int i = 0; i < leftSortColumns.size(); i++) {
@@ -149,5 +165,12 @@ public class SMJoinOperator extends JoinOperator{
 		 */
 		return 0;
 	}
+	public List<String> getLeftSortColumns(){
+		return this.leftSortColumns;
+	}
+	public List<String> getRightSortColumns(){
+		return this.rightSortColumns;
+	}
+	
 
 }

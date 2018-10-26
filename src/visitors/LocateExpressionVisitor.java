@@ -47,15 +47,24 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * For Implementation of Sort Merge Join Operator, visit the join condition
+ * of this SMJ operator, and list the respective columns of the left table and right table, 
+ * such that left table and right table can be sorted accordingly.
+ * 
+ * 
+ * @author Ruoxuan Xu
+ *
+ */
 public class LocateExpressionVisitor implements ExpressionVisitor {
-	// columns to be used when sorting left child
+	/* columns to be used when sorting left child */
 	private List<String> leftSortColumns = new ArrayList<>();
-	// columns to be used when sorting right child
+	/* columns to be used when sorting right child */
 	private List<String> rightSortColumns = new ArrayList<>();
 	
-	// schema of leftChild, determined by fromItem in plainSelect
+	/* schema of leftChild, determined by fromItem in plainSelect */
 	private Map<String, Integer> leftSchema;	
-	// schema of rightChild, determined by fromItem in plainSelect
+	/* schema of rightChild, determined by fromItem in plainSelect */
 	private Map<String, Integer> rightSchema;
 	
 	
@@ -78,12 +87,13 @@ public class LocateExpressionVisitor implements ExpressionVisitor {
 		if ((arg0.getLeftExpression() instanceof Column) && 
 				(arg0.getRightExpression() instanceof Column)) {
 			
-			// add this equation to expressionList
+			/* add this equation to expressionList */
 			String columnLeft = ((Column)arg0.getLeftExpression()).getWholeColumnName();
 			String columnRight = ((Column)arg0.getRightExpression()).getWholeColumnName();
 			
-			// SELECT * FROM S, R WHERE S.A = R.D
-			// columnLeft S.A belongs to leftChild
+			/* columnLeft S.A belongs to leftChild, eg.
+			 * SELECT * FROM S, R WHERE S.A = R.D
+			 */
 			if (leftSchema.containsKey(columnLeft)) {
 				leftSortColumns.add(columnLeft);
 				rightSortColumns.add(columnRight);

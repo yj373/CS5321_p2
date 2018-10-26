@@ -1,10 +1,6 @@
 package data;
 
 import java.util.Map;
-import java.util.logging.Level;
-
-import util.GlobalLogger;
-
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.io.BufferedReader;
@@ -62,8 +58,7 @@ public class DataBase {
 			}
 			br.close();
 		}catch(IOException e) {
-			GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);
-			
+			System.out.println(e.getMessage());
 		}
 		
 	}

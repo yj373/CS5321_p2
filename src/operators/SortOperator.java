@@ -1,15 +1,21 @@
 package operators;
 
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import data.Tuple;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 
 /**
  * This class provides function:
@@ -20,10 +26,6 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
  */
 public class SortOperator extends Operator{
 
-	//modification in 10.22 -- delete field schema
-	//private Map<String, Integer> schema;
-	
-	
 	
 	private PlainSelect plainSelect;
 	private String[] sortSequence;
@@ -41,6 +43,10 @@ public class SortOperator extends Operator{
 	 * 
 	 */
 	public SortOperator(PlainSelect plainSelect, Operator op) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("sort-");
+		sb.append(op.name);
+		name = sb.toString();
 
 		this.plainSelect = plainSelect;
 		setLeftChild(op);
@@ -161,6 +167,40 @@ public class SortOperator extends Operator{
 			 */
 			return 0;
 		}
+	}
+	
+	
+	public static void main(String[] args) throws JSQLParserException {
+//		// TODO Auto-generated method stub
+//		String[] statements = new String[1];
+//		
+//		statements[0] = "SELECT * FROM Sailors S ORDER BY S.B;";
+//		
+//		
+//		for (int i=0; i< statements.length; i++) {
+//			System.out.println("*******when statement is : " + statements[i]);
+//			String statement = statements[i];
+//			CCJSqlParserManager parserManager = new CCJSqlParserManager();
+//			PlainSelect ps = (PlainSelect) ((Select) parserManager.
+//					parse(new StringReader(statement))).getSelectBody();
+//			String table_info = ps.getFromItem().toString();
+//			ScanOperator scanOp = new ScanOperator(table_info);
+//			SortOperator sortOp = new SortOperator(ps, scanOp);
+//			ProjectOperator projectOp = new ProjectOperator(ps, sortOp);
+//			projectOp.dump();
+//			System.out.println("*******end*********");
+//			System.out.println();
+//
+//		}
+//		ScanOperator sc = new ScanOperator("Boats");
+//		List<String> order = new LinkedList<String>();
+//		order.add("Boats.E");
+//		ExternalSortOperator es = new ExternalSortOperator(1, 3, order, sc.schema, sc);
+//		//es.dump();
+//		for (int i = 0; i<100; i++) {
+//			Tuple t = es.getNextTuple();
+//			t.printData();
+
 	}
 
 }

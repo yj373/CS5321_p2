@@ -132,6 +132,10 @@ public class ScanOperator extends Operator{
 		
 		//modification
 		schema = tr.getSchema();
+		StringBuilder sb = new StringBuilder();
+		sb.append("scan-");
+		sb.append(tableAliase);
+		name = sb.toString();
 	}
 	/** 
 	 * This method is a constructor which is to
@@ -157,6 +161,11 @@ public class ScanOperator extends Operator{
 		
 		//modification
 		schema = tr.getSchema();
+		StringBuilder sb2 = new StringBuilder();
+		sb2.append("scan-");
+		sb2.append(tableAliase);
+		name = sb2.toString();
+		
 	}
 	
 	/** 
@@ -184,6 +193,10 @@ public class ScanOperator extends Operator{
 		
 		//modification
 		schema = tr.getSchema();
+		StringBuilder sb2 = new StringBuilder();
+		sb2.append("scan-");
+		sb2.append(tableAliase);
+		name = sb2.toString();
 	}
 	
 	/** get table aliase*/

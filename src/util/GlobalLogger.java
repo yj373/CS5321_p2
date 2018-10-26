@@ -14,7 +14,7 @@ public class GlobalLogger {
 	              "%5$s %n");
 		 try {
 			 logger = Logger.getLogger("MyLog");
-			 FileHandler fh =  new FileHandler("src/test/DatabaseLogfile.log");
+			 FileHandler fh =  new FileHandler("src/DatabaseLogfile.log");
 			 logger.addHandler(fh);
 			 SimpleFormatter formatter = new SimpleFormatter();
 			 fh.setFormatter(formatter);
