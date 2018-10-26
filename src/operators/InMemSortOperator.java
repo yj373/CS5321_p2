@@ -20,6 +20,10 @@ public class InMemSortOperator extends Operator{
 		this.schema = op1.schema;
 		readSortWrite();
 		this.tr = new TupleReader(this.tempFileAddress, this.schema);
+		StringBuilder sb = new StringBuilder();
+		sb.append("imSort-");
+		sb.append(op1.name);
+		name = sb.toString();
 	}
     
     // Initializing function:

@@ -18,6 +18,7 @@ public abstract class Operator {
 	protected Operator leftChild;
 	protected Operator rightChild;
 	protected Expression exp;
+	protected String name;
 	
 	protected Map<String, Integer> schema;
 	// Marker to indicate if we checked the table beneath the operator is empty or not
@@ -58,6 +59,26 @@ public abstract class Operator {
 		this.exp = expression;
 	}
 	
+	/**
+	 * get schema
+	 * set schema
+	 */
+	public Map<String, Integer> getSchema(){
+		return this.schema;
+	}
+	public void setSchema(Map<String, Integer> m) {
+		this.schema = m;
+	}
+	/**
+	 * get operator name
+	 * set operator name
+	 */
+	public String getOpname() {
+		return this.name;
+	}
+	public void setName(String n) {
+		this.name = n;
+	}
 
 	/**
 	 * Return the next next tuple, if there are some available 

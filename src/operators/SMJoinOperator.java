@@ -27,6 +27,12 @@ public class SMJoinOperator extends JoinOperator{
 	// extract the columns related to op2 from expression, corresponding to sequence of op1
 	public SMJoinOperator(Operator op1, Operator op2, Expression expression) {
 		super(op1, op2, expression);
+		StringBuilder sb = new StringBuilder();
+		sb.append("smj-");
+		sb.append(op1.name);
+		sb.append("-");
+		sb.append(op2.name);
+		name = sb.toString();
 		if (exp != null) {
 			LocateExpressionVisitor locator = new LocateExpressionVisitor(op1.schema, op2.schema);
 			exp.accept(locator);
@@ -35,7 +41,7 @@ public class SMJoinOperator extends JoinOperator{
 			
 			// Only when join condition exp is not null will we set 
 			// the child to be in-mem-sort operator
-			setSortOperator();
+			//setSortOperator();
 		}
 	}
 
@@ -149,5 +155,12 @@ public class SMJoinOperator extends JoinOperator{
 		 */
 		return 0;
 	}
+	public List<String> getLeftSortColumns(){
+		return this.leftSortColumns;
+	}
+	public List<String> getRightSortColumns(){
+		return this.rightSortColumns;
+	}
+	
 
 }

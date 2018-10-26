@@ -68,7 +68,7 @@ public class SQLInterpreter {
 				Select select = (Select) statement;
 				LogicalPlanBuilder lb = new LogicalPlanBuilder(select);
 				lb.buildLogicQueryPlan();
-				PhysicalPlanVisitor pv = new PhysicalPlanVisitor();
+				PhysicalPlanVisitor pv = new PhysicalPlanVisitor(index);
 				try {
 					lb.getRoot().accept(pv);
 					root = pv.getPhysicalRoot();

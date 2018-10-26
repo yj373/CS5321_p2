@@ -34,18 +34,41 @@ public class ProjectOperator extends Operator{
 
 	public ProjectOperator(PlainSelect plainSelect,Operator op) {
 		super.setLeftChild(op);
+		StringBuilder sb = new StringBuilder();
+		sb.append("proj-");
+		sb.append(op.name);
+		name = sb.toString();
 		selectItems = plainSelect.getSelectItems();
 		if (selectItems.get(0).toString() == "*") {
 			allColumns = true;
-		} 
+			this.schema = op.schema;
+		}else {
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			for (int i = 0; i < selectItems.size(); i++) {
+				map.put(selectItems.get(i).toString(), i);
+			}
+			this.schema = map;
+		}
+		
 		
 	}
 	
 	public ProjectOperator(List<SelectItem> sI, Operator op) {
 		super.setLeftChild(op);
+		StringBuilder sb = new StringBuilder();
+		sb.append("proj-");
+		sb.append(op.name);
+		name = sb.toString();
 		this.selectItems = sI;
 		if (selectItems.get(0).toString() == "*") {
 			allColumns = true;
+			this.schema = op.schema;
+		}else {
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			for (int i = 0; i < selectItems.size(); i++) {
+				map.put(selectItems.get(i).toString(), i);
+			}
+			this.schema = map;
 		} 
 	}
 

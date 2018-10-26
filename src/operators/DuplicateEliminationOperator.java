@@ -36,6 +36,10 @@ public class DuplicateEliminationOperator extends Operator{
 			workState = false;
 		}
 		super.setLeftChild(op);
+		StringBuilder sb = new StringBuilder();
+		sb.append("distinct-");
+		sb.append(op.name);
+		name = sb.toString();
 	}
 	
 	

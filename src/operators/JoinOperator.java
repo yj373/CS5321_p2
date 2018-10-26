@@ -32,6 +32,12 @@ public class JoinOperator extends Operator{
 		schema = concateSchema(op1.schema, op2.schema);
 		currLeftTup = null;
 		currRightTup = null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("join-");
+		sb.append(op1.name);
+		sb.append("-");
+		sb.append(op2.name);
+		name = sb.toString();
 	}
 
 	/**

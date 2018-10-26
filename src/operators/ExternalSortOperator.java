@@ -22,6 +22,7 @@ import util.TupleWriter;
 public class ExternalSortOperator extends Operator{
 	
 	private int queryNum;
+	private String tempAddress;
 	private File tempDir;
 	private File[] scratchFiles; // Current scratch files under the temporary directory 
 	private TupleReader[] trs;
@@ -57,13 +58,26 @@ public class ExternalSortOperator extends Operator{
 		this.trs = new TupleReader[bufferSize-1];
 		this.trsStates = new boolean[bufferSize-1];
 		this.outputPage = new Tuple[tuplePerPage];
-		this.tempDir = new File(Dynamic_properties.tempPath);
+		StringBuilder sb = new StringBuilder();
+		sb.append("exSort-");
+		sb.append(op.name);
+		sb.append("-");
+		sb.append(queryNum);
+		name = sb.toString();
+		this.tempAddress = Dynamic_properties.tempPath + "/external-sort/" + name;
+		this.tempDir = new File(tempAddress);
+		if(!tempDir.exists()) {
+			tempDir.mkdirs();
+		}
 		this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
 		this.attrList = attributes;
 		this.mergePointers = new int[bufferSize-1];
-		
+		cleanTempDirectory();
 		//initMergePointers();
 		
+	}
+	public ExternalSortOperator( List<String>attributes) {
+		this.attrList = attributes;
 	}
 	private void initMergePointers() {
 		for (int i = 0; i < mergePointers.length; i++) {
@@ -214,7 +228,7 @@ public class ExternalSortOperator extends Operator{
 	 * 		   1: the merge is done, all merge pointers == -1
 	 * 		   2: the merge is done, the output page is full
 	 */
-	public int mergeSort() {
+	public Tuple mergeSort() {
 		TupleComparator tc = new TupleComparator(this.attrList);
 		int currInd = -1;
 		for (int i = 0; i < mergePointers.length; i++) {
@@ -223,7 +237,7 @@ public class ExternalSortOperator extends Operator{
 				break;
 			}
 		}
-		if(currInd != -1 && outputPointer < outputPage.length) {
+		if(currInd != -1 ) {
 			Tuple res = sortBuffer[mergePointers[currInd]];
 			boolean flag = true;
 			while(flag) {
@@ -242,24 +256,60 @@ public class ExternalSortOperator extends Operator{
 					}
 				}
 			}
-			outputPage[outputPointer] = res;
-			outputPointer++;
 			mergePointers[currInd]++;
 			if(mergePointers[currInd]==(currInd+1)*tuplePerPage || sortBuffer[mergePointers[currInd]]==null) {
 				mergePointers[currInd] = -1;
 			}
-			return 0;
+			return res;
 			
 		}else {
-			if(currInd == -1) return 1;
-			else return 2;//output page is full
+			return null;
+		}
+		
+	}
+	public Tuple mergeSort(Tuple[] t_array, int[] m_pointers, int tPage) {
+		TupleComparator tc = new TupleComparator(this.attrList);
+		int currInd = -1;
+		for (int i = 0; i < m_pointers.length; i++) {
+			if (m_pointers[i] != -1) {
+				currInd = i;
+				break;
+			}
+		}
+		if(currInd != -1 ) {
+			Tuple res = t_array[m_pointers[currInd]];
+			boolean flag = true;
+			while(flag) {
+				flag = false;
+				for (int j = currInd + 1; j < m_pointers.length; j++) {
+					if(m_pointers[j] == -1) continue;
+					Tuple cand = t_array[m_pointers[j]];
+//					if (cand == null) {
+//						mergePointers[j] = -1;
+//						continue;
+//					} 
+					if (tc.compare(cand, res)==-1) {
+						flag = true;
+						res = cand;
+						currInd = j;
+					}
+				}
+			}
+			m_pointers[currInd]++;
+			if(m_pointers[currInd]==(currInd+1)*tPage || t_array[m_pointers[currInd]]==null) {
+				m_pointers[currInd] = -1;
+			}
+			return res;
+			
+		}else {
+			return null;
 		}
 		
 	}
 	
 	private String generatePath(int fileNum) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(Dynamic_properties.tempPath);
+		sb.append(tempAddress);
 		sb.append('/');
 		for (String s: this.attrList) {
 			s = s.replace('.', '_');
@@ -276,7 +326,7 @@ public class ExternalSortOperator extends Operator{
 	}
 	private String getFileAddress(String fileName) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(Dynamic_properties.tempPath);
+		sb.append(tempAddress);
 		sb.append('/');
 		sb.append(fileName);
 		return sb.toString();
@@ -293,7 +343,7 @@ public class ExternalSortOperator extends Operator{
 	 * Doing the B-1 way external sort in the later passes
 	 * @throws Exception 
 	 */
-	private void sort() throws Exception {
+	public void sort() throws Exception {
 		//pass 0
 		int readState = 1;
 		int fileNum = 0;
@@ -306,7 +356,7 @@ public class ExternalSortOperator extends Operator{
 				writer.writeTuple(t);
 				if(t == null) break;
 			}
-			if (readState == 1) writer.writeTuple(null);
+			writer.writeTuple(null);
 			fileNum ++;
 		}
 		this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
@@ -314,12 +364,13 @@ public class ExternalSortOperator extends Operator{
 		fileNum = 0;
 		while (scratchFiles.length > 2) {
 			int i = 0;//index of scratch files
-			int j = 0;//index of tuple readers
+			
 			int fileCountsBeforePass = scratchFiles.length;
 			//Execute a pass
 			while(i < fileCountsBeforePass) {
 				//Construct the tuple readers
 				List<File>deleteFiles = new LinkedList<File>();
+				int j = 0;//index of tuple readers
 				while (j < trs.length) {
 					//if (j >= scratchFiles.length) break;
 					String fileName = scratchFiles[i].getName();
@@ -346,23 +397,15 @@ public class ExternalSortOperator extends Operator{
 				i++;
 				//Execute a run in this pass
 				readState = 3;//reading is not finished
-				int mergeState = 1;//merging is not finished, needs to load new data
 				
 				String scratchPath = generatePath(fileNum);
 				tw = new TupleWriter(scratchPath);
 				while(readState == 3) {
-					if (mergeState == 1) {
-						readState = readInBuffer();
-						mergeState = 0;
-					}
-					while(mergeState == 0) {
-						mergeState = mergeSort();
-						if (mergeState == 2) {
-							writeToScratch();
-							mergeState = 0;
-						}else if(mergeState == 1) {
-							writeToScratch();
-						}
+					readState = readInBuffer();
+					Tuple tuple = mergeSort();
+					while(tuple != null) {
+						tw.writeTuple(tuple);
+						tuple = mergeSort();
 					}
 					if (readState != 3) tw.writeTuple(null); //close the writer;
 				}
@@ -371,12 +414,13 @@ public class ExternalSortOperator extends Operator{
 				for (File f: deleteFiles) {
 					f.delete();
 				}
-				this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
+				//this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
 			}
 			passNum++;
 			this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
 			
-		}	
+		}
+		//Arrays.fill(trs, null);
 		
 	}
 
@@ -385,35 +429,42 @@ public class ExternalSortOperator extends Operator{
 	 * Clean up the temp directory between queries
 	 */
 	public void cleanTempDirectory() {
-		if (scratchFiles.length!=0) {
+		File[] scratchDirs = new File(Dynamic_properties.tempPath + "/external-sort").listFiles((dir, name) -> !name.equals(".DS_Store"));
+		if (scratchDirs.length!=0) {
 			//the first file is a human readable file
-			String[] temp = scratchFiles[0].getName().split("_");
-			int currQueryNum = 0;
-			if (temp[temp.length-1].equals("humanhumanreadable")) {
-				currQueryNum = Integer.valueOf(temp[temp.length-2]);
-			}else {
-				currQueryNum = Integer.valueOf(temp[temp.length-1]);
-			}
-			if (currQueryNum != queryNum) {
-				for (File file: scratchFiles) {
-					file.delete();
+			for(File dir : scratchDirs) {
+				String[] temp = dir.getName().split("-");
+				
+				String currQueryNum = temp[temp.length-1];
+				if (!currQueryNum.equals(String.valueOf(queryNum)) ) {
+					deleteDirectory(dir);
 				}
 			}
+			
 		}
+		this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
+	}
+	private void deleteDirectory(File dir) {
+		File[] contents = dir.listFiles();
+		if (contents != null) {
+			for (File f: contents) {
+				deleteDirectory(f);
+			}
+		}
+		dir.delete();
 	}
 
 	@Override
 	public Tuple getNextTuple() {
-		cleanTempDirectory();
 		try {
 			while(this.scratchFiles.length !=2) {
 				System.out.println("Doing sorting");
 				sort();
 			}
 			
-			String fileName = scratchFiles[0].getName();
-			String fileAddress = getFileAddress(fileName);
-			if(trs[0] == null) {
+			String fileName = scratchFiles[0].getName().replace("_humanreadable", "");
+			if(trs[0] == null || !trs[0].getFileName().equals(fileName) ) {
+				String fileAddress = getFileAddress(fileName);
 				trs[0] = new TupleReader(fileAddress, this.schema);
 			}			
 			return trs[0].readNextTuple();
@@ -429,8 +480,15 @@ public class ExternalSortOperator extends Operator{
 
 	@Override
 	public void reset() {
-		this.trs[0].reset();
-		
+		if (scratchFiles.length != 0) {
+			String fileName = scratchFiles[0].getName();
+			
+			if(!(trs[0] != null && trs[0].getFileName() != fileName)) {
+				String fileAddress = getFileAddress(fileName);
+				trs[0] = new TupleReader(fileAddress, this.schema);
+			}
+			this.trs[0].reset();
+		}
 	}
 	/**
 	 * TupleComparator is used to determine the relative positions of two tuples, based on
@@ -479,42 +537,56 @@ public class ExternalSortOperator extends Operator{
 	//Test
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-//		long[] data1 = {1,4,4,4};
-//		long[] data2 = {1,4,3,3};
-//		long[] data3 = {6,4,3,1};
-//		long[] data4 = {2,5,5,5};
-//		long[] data5 = {2,2,5,5};
-//		HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
-//		schema1.put("S.A", 0);
-//		schema1.put("S.B", 1);
-//		schema1.put("R.G", 2);
-//		schema1.put("R.H", 3);
-//		Tuple t1 = new Tuple(data1, schema1);
-//		Tuple t2 = new Tuple(data2, schema1);
-//		Tuple t3 = new Tuple(data3, schema1);
-//		Tuple t4 = new Tuple(data4, schema1);
-//		Tuple t5 = new Tuple(data5, schema1);
-//		Tuple[] arr = {t1,t2,t3,t4,t5, null};
-//		LinkedList<String> orderList = new LinkedList<String>();
-//		orderList.add("R.H");
-//		orderList.add("S.B");
-//		//orderList.add("S.A");
-//		Arrays.sort(arr, new TupleComparator_test(orderList));
-//		for (Tuple t: arr) {
-//			if (t!=null) {
-//				t.printData();
-//			}
-//			
-//		}
-		ScanOperator sc = new ScanOperator("Boats");
-		List<String> order = new LinkedList<String>();
-		order.add("Boats.E");
-		ExternalSortOperator es = new ExternalSortOperator(1, 3, order, sc.schema, sc);
-		//es.dump();
-		for (int i = 0; i<100; i++) {
-			Tuple t = es.getNextTuple();
+		long[] data1 = {1,4,4,4};
+		long[] data2 = {1,4,3,3};
+		long[] data3 = {2,4,3,1};
+		long[] data4 = {3,5,5,5};
+		long[] data5 = {6,2,5,5};
+		HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
+		schema1.put("S.A", 0);
+		schema1.put("S.B", 1);
+		schema1.put("R.G", 2);
+		schema1.put("R.H", 3);
+		Tuple t1 = new Tuple(data1, schema1);
+		Tuple t2 = new Tuple(data2, schema1);
+		Tuple t3 = new Tuple(data3, schema1);
+		Tuple t4 = new Tuple(data4, schema1);
+		Tuple t5 = new Tuple(data5, schema1);
+		long[] data6 = {1,4,4,4};
+		long[] data7 = {1,4,3,3};
+		long[] data8 = {1,3,3,1};
+		long[] data9 = {3,1,5,5};
+		long[] data10 = {6,2,5,5};
+		//HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
+		Tuple t6 = new Tuple(data1, schema1);
+		Tuple t7 = new Tuple(data2, schema1);
+		Tuple t8 = new Tuple(data3, schema1);
+		Tuple t9 = new Tuple(data4, schema1);
+		Tuple t10 = new Tuple(data5, schema1);
+		Tuple[] arr = {t1, t2, t3, t4, t5, null, t6,t7,t8,t9,t10,null};
+		LinkedList<String> orderList = new LinkedList<String>();
+		orderList.add("S.A");
+		//orderList.add("S.B");
+		//orderList.add("S.A");
+		ExternalSortOperator es = new ExternalSortOperator(orderList);
+		int tp = 6;
+		int[] pointers = {0, tp};
+		Tuple t = es.mergeSort(arr, pointers, tp);
+		while (t!= null) {
+			
 			t.printData();
+			t = es.mergeSort(arr, pointers, tp);
+			
 		}
+//		ScanOperator sc = new ScanOperator("Boats");
+//		List<String> order = new LinkedList<String>();
+//		order.add("Boats.E");
+//		ExternalSortOperator es = new ExternalSortOperator(2, 3, order, sc.schema, sc);
+//		//es.dump();
+//		for (int i = 0; i<100; i++) {
+//			Tuple t = es.getNextTuple();
+//			t.printData();
+//		}
 
 	}
 

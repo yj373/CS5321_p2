@@ -1,8 +1,14 @@
 package visitors;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
+import data.Dynamic_properties;
 import logicalOperators.LogicalDuplicateEliminationOperator;
 import logicalOperators.LogicalJoinOperator;
 import logicalOperators.LogicalOperator;
@@ -10,16 +16,20 @@ import logicalOperators.LogicalProjectOperator;
 import logicalOperators.LogicalScanOperator;
 import logicalOperators.LogicalSortOperator;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import operators.BNLJoinOperator;
 import operators.DuplicateEliminationOperator;
+import operators.ExternalSortOperator;
+import operators.InMemSortOperator;
 import operators.JoinOperator;
 import operators.Operator;
 import operators.ProjectOperator;
 import operators.SMJoinOperator;
 import operators.ScanOperator;
 import operators.SortOperator;
+import util.GlobalLogger;
 /**
  * Visit the logical plan and construct a physical operator 
  * query plan
@@ -29,9 +39,33 @@ import operators.SortOperator;
 public class PhysicalPlanVisitor {
 	private Operator root;
 	private LinkedList<Operator> childList;
+	private int queryNum;
+	private int joinType=0; // 0: TNLJ, 1: BNLJ, 2: SMJ
+	private int sortType=0; // 0: in-memory, 1: external
+	private int bnljBufferSize;
+	private int exSortBufferSize;
 	//Constructor
 	public PhysicalPlanVisitor() {
 		this.childList = new LinkedList<Operator>();
+	}
+	public PhysicalPlanVisitor(int qN) {
+		this.childList = new LinkedList<Operator>();
+		this.queryNum = qN;
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(Dynamic_properties.configuePath));
+			String line = br.readLine();
+			String[] joinConfigue = line.split("\\s+");
+			joinType = Integer.valueOf(joinConfigue[0]);
+			if (joinConfigue.length==2) bnljBufferSize = Integer.valueOf(joinConfigue[1]);
+			line = br.readLine();
+			String[] sortConfigue = line.split("\\s+");
+			sortType = Integer.valueOf(sortConfigue[0]);
+			if (joinConfigue.length==2) exSortBufferSize = Integer.valueOf(sortConfigue[1]);
+			br.close();
+		}catch(IOException e) {
+			GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);
+			
+		}
 	}
 
 	
@@ -78,16 +112,46 @@ public class PhysicalPlanVisitor {
 		Operator right = childList.pollLast();
 		Operator left = childList.pollLast();
 		
+		if(joinType == 0) {
+			JoinOperator join1 = new JoinOperator(left, right, exp);
+			childList.add(join1);
+			root = join1;
+		}else if (joinType == 1) {
+			BNLJoinOperator join2 = new BNLJoinOperator(left, right, exp, bnljBufferSize);
+			childList.add(join2);
+			root = join2;
+		}else if (joinType == 2) {
+			SMJoinOperator join3 = new SMJoinOperator(left, right, exp);
+			if (sortType == 0) {
+				if (left != null) {
+					Operator originalLeft = left;
+					left = new InMemSortOperator(originalLeft, join3.getLeftSortColumns());			                			
+				}
+				if (right != null) {
+					Operator originalRight = right;
+					right = new InMemSortOperator(originalRight, join3.getRightSortColumns());			
+				}
+			}else if(sortType == 1) {
+				if (left != null) {
+					Operator originalLeft = left;
+					left = new ExternalSortOperator(queryNum, exSortBufferSize, join3.getLeftSortColumns(), originalLeft.getSchema(), originalLeft);			                			
+				}
+				if (right != null) {
+					Operator originalRight = right;
+					right = new ExternalSortOperator(queryNum, exSortBufferSize, join3.getRightSortColumns(), originalRight.getSchema(), originalRight);			
+				}
+			}
+			join3.setLeftChild(left);
+			join3.setRightChild(right);
+			childList.add(join3);
+			root = join3;
+		}
 		
-		//for yxx's test
-		//JoinOperator join = new JoinOperator(left, right, exp);
-		JoinOperator join = new BNLJoinOperator(left, right, exp, 2);
 		
 		
 		
 		
-		childList.add(join);
-		root = join;
+		
 	}
 	
 	/**
@@ -123,9 +187,24 @@ public class PhysicalPlanVisitor {
 		}
 		PlainSelect sI = operator.getPlainSelect();
 		Operator left = childList.pollLast();
-		SortOperator sort = new SortOperator(sI, left);
-		childList.add(sort);
-		root = sort;
+		if (sortType == 0) {
+			SortOperator sort1 = new SortOperator(sI, left);
+			childList.add(sort1);
+			root = sort1;
+		}else if (sortType == 1) {
+			List<OrderByElement> list = sI.getOrderByElements();
+			List<String> attributes = new LinkedList<String>();
+			if(list != null) {
+				for (int i=0; i<list.size(); i++) {
+					attributes.add(list.get(i).toString());
+				}
+			}
+			ExternalSortOperator sort2 = new ExternalSortOperator(queryNum, exSortBufferSize, attributes, left.getSchema(), left);
+			childList.add(sort2);
+			root = sort2;
+			
+		}
+		
 	}
 	
 	/**
