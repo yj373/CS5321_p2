@@ -81,7 +81,8 @@ public class PhysicalPlanVisitor {
 		
 		//for yxx's test
 		//JoinOperator join = new JoinOperator(left, right, exp);
-		JoinOperator join = new BNLJoinOperator(left, right, exp, 2);
+		//JoinOperator join = new BNLJoinOperator(left, right, exp, 2);
+		JoinOperator join = new SMJoinOperator(left, right, exp);
 		
 		
 		
