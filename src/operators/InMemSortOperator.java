@@ -106,6 +106,15 @@ public class InMemSortOperator extends Operator{
 						return 1;
 					} 
 				}
+				
+				for (int i = 0; i < schema.size(); i++) {
+					if (o1.getData()[i] < o2.getData()[i]) {
+						return -1;
+					} 
+					if (o1.getData()[i] > o2.getData()[i]){
+						return 1;
+					} 
+				}
 				return 0;
 			}
 			/* if sortColumns is null, say there is no join condition in query,

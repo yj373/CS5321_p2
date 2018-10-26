@@ -33,6 +33,7 @@ public class BNLJoinOperator extends JoinOperator{
 	/*maximum tuples in the current block*/
 	private int maxTupleNumber;
 	
+	/*variables to check the empty table*/
 	private boolean initLeftTable;
 	private boolean leftTableEmpty;
 	private boolean initRightTable;
@@ -63,14 +64,13 @@ public class BNLJoinOperator extends JoinOperator{
 
 		/*calculate the number of tuples in this buffer and prepare buffer*/
 		int numberTuples = (int)(bufferPage * size)/(op1.schema.size() *4);
+		
 		bufferTuples = new Tuple[numberTuples];
 		outerTupleIndex = 0;
 		reFillBuffer = true;
 		needInnerTuple = true;
 		blockLeft = true;
 		maxTupleNumber = 0;
-		
-		
 	
 		initLeftTable = false;
 		leftTableEmpty = false;
@@ -100,6 +100,7 @@ public class BNLJoinOperator extends JoinOperator{
 			}
 		}
 		
+		/*check the empty state of left table*/
 		if (!initLeftTable) {
 			initLeftTable = true;
 			if (maxTupleNumber == 0) {
@@ -120,11 +121,7 @@ public class BNLJoinOperator extends JoinOperator{
 		}
 
 		/* corner case 2: Since join condition is not null, as long as there 
-		 * is one empty table, return null */
-//		if (leftChild.isEmptyTable() || rightChild.isEmptyTable()) {
-//			return null;
-//		}
-		
+		 * is one empty table, return null */		
 		if (leftTableEmpty || rightTableEmpty) {
 			return null;
 		}
@@ -142,6 +139,7 @@ public class BNLJoinOperator extends JoinOperator{
 				innerTuple = rightChild.getNextTuple();
 				needInnerTuple = false;
 				
+				/*check the empty state of right table*/
 				if (!initRightTable) {
 					initRightTable = true;
 					if (innerTuple == null ) {

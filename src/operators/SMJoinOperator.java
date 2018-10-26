@@ -6,15 +6,16 @@ import data.Tuple;
 import net.sf.jsqlparser.expression.Expression;
 import visitors.LocateExpressionVisitor;
 
+/**
+ * SMJoin Operator
+ * @author Ruoxuan Xu
+ *
+ */
+
 public class SMJoinOperator extends JoinOperator{
 	private List<String> leftSortColumns;
 	private List<String> rightSortColumns;
-	
-	
-	// Can I extends from JoinOperator? BNLJ may need this, too!
-	private Tuple currLeftTup;
-	private Tuple currRightTup;
-	
+
 	/* the marker of reset position in right table 
 	 * pivot is -1 when it is not in the process of merging. 
 	 * Once the first equal entry pair is found, pivot is set to be rightIdx and 
@@ -23,8 +24,9 @@ public class SMJoinOperator extends JoinOperator{
 	private int pivot = -1;
 	private int rightIdx = -1; // The index of currRightTup in right table, -1 when getNextTup() is not called.
 	
-	// extract the columns related to op1 from expression
-	// extract the columns related to op2 from expression, corresponding to sequence of op1
+	/* extract the columns related to op1 from expression
+	 * extract the columns related to op2 from expression, corresponding to sequence of op1
+	 */
 	public SMJoinOperator(Operator op1, Operator op2, Expression expression) {
 		super(op1, op2, expression);
 		StringBuilder sb = new StringBuilder();
@@ -111,7 +113,8 @@ public class SMJoinOperator extends JoinOperator{
 			rightIdx ++;
 			return result;
 		}			
-		// pivot is non-negative, which means we need to reset RightTable by index if needed
+		
+		/* pivot is non-negative, which means we need to reset RightTable by index if needed*/
 		
 		// In the case below, the case of currLeft == null has been ruled out at the very beginning in corner case 4
 		// Therefore we only need to consider if currRightTup == null

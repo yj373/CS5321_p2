@@ -15,8 +15,8 @@ import net.sf.jsqlparser.expression.Expression;
  *
  */
 public class JoinOperator extends Operator{
-	private Tuple currLeftTup;
-	private Tuple currRightTup;
+	protected Tuple currLeftTup;
+	protected Tuple currRightTup;
 	
 
 	
