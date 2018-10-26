@@ -21,9 +21,12 @@ public abstract class Operator {
 	protected String name;
 	
 	protected Map<String, Integer> schema;
+	/*
 	// Marker to indicate if we checked the table beneath the operator is empty or not
 	// checkIfEmpty[0] indicates if we checked before;
 	// checkIfEmpty[1] indicates if it is empty
+	 */
+	 
 	private boolean[] checkIfEmpty =  new boolean[2];;
 
 	/**

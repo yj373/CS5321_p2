@@ -26,10 +26,6 @@ import net.sf.jsqlparser.statement.select.Select;
  */
 public class SortOperator extends Operator{
 
-	//modification in 10.22 -- delete field schema
-	//private Map<String, Integer> schema;
-	
-	
 	
 	private PlainSelect plainSelect;
 	private String[] sortSequence;
@@ -172,6 +168,8 @@ public class SortOperator extends Operator{
 			return 0;
 		}
 	}
+	
+	
 	public static void main(String[] args) throws JSQLParserException {
 //		// TODO Auto-generated method stub
 //		String[] statements = new String[1];

@@ -1,5 +1,0 @@
-TIME START 1540492102263 
-Read statement: SELECT * FROM Sailors, Reserves WHERE Sailors.A = Reserves.G 
-java.lang.ArrayIndexOutOfBoundsException: 0 
-TIME START 1540492197497 
-Read statement: SELECT * FROM Sailors, Reserves, Boats WHERE Sailors.A = Reserves.G AND Reserves.H = Boats.D 

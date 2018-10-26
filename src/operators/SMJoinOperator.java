@@ -47,8 +47,8 @@ public class SMJoinOperator extends JoinOperator{
 		}
 	}
 
-	// Set the sortOperator according to the config file;
-	// Use in-mem-sort for current process.
+	/* Set the sortOperator according to the config file;*/
+	/* Use in-mem-sort for current process.*/
 	private void setSortOperator() {
 		if (leftChild != null) {
 			Operator originalLeft = leftChild;
@@ -135,10 +135,17 @@ public class SMJoinOperator extends JoinOperator{
 
 	}
 	
-	// DIFFERENT from the compare function in sortOperator, in this function we compare
-	// two tuples from two tables with different schemas.
-	// o1: must be the tuple from LEFT table;
-	// o2: must be the tuple from RIGHT table;
+	
+	/**
+	 * DIFFERENT from the compare function in sortOperator, in this function we compare
+	 * two tuples from two tables with different schemas.
+	 * o1: must be the tuple from LEFT table;
+	 * o2: must be the tuple from RIGHT table;
+	 * 
+	 * @param o1
+	 * @param o2
+	 * @return int
+	 */
 	private int compareBtwnTable(Tuple o1, Tuple o2) {
 		if (leftSortColumns != null && rightSortColumns != null) {
 			for (int i = 0; i < leftSortColumns.size(); i++) {

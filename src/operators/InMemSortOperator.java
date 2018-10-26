@@ -9,7 +9,7 @@ import util.TupleReader;
 import util.TupleWriter;
 
 public class InMemSortOperator extends Operator{
-	// the priority list of columns to be sorted. eg [S.A, S.B, S.C] 
+	/* the priority list of columns to be sorted. eg [S.A, S.B, S.C] */
     private List<String> sortColumns;
     private String tempFileAddress;
 	private TupleReader tr;

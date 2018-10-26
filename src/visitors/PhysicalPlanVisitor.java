@@ -60,7 +60,7 @@ public class PhysicalPlanVisitor {
 			line = br.readLine();
 			String[] sortConfigue = line.split("\\s+");
 			sortType = Integer.valueOf(sortConfigue[0]);
-			if (joinConfigue.length==2) exSortBufferSize = Integer.valueOf(sortConfigue[1]);
+			if (sortConfigue.length==2) exSortBufferSize = Integer.valueOf(sortConfigue[1]);
 			br.close();
 		}catch(IOException e) {
 			GlobalLogger.getLogger().log(Level.SEVERE, e.toString(), e);
@@ -147,11 +147,7 @@ public class PhysicalPlanVisitor {
 			root = join3;
 		}
 		
-		
-		
-		
-		
-		
+	
 	}
 	
 	/**

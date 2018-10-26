@@ -55,7 +55,7 @@ public class SQLInterpreter {
 
 			while ((statement = parser.Statement()) != null) {
 
-				/**calculate spend time*/
+				/*calculate spend time*/
 				long startTime=System.currentTimeMillis();    
 				GlobalLogger.getLogger().info("TIME START " + startTime);
 				long endTime = 0;
