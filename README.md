@@ -34,7 +34,7 @@ BNLJ, SMJ and previous implemented TNLJ. Here is an overall introduction to our 
 1. BNLJ
 
 Block nested loop join implementation:
-Before joining tuples, read one block from outer relation tables and read one tuple from inner relation table. 
+When construct a BNLJoinOperator, it will calculate the maximum number of tuples contained in the buffer and assign an array to save these tuples as buffer. Before joining tuples, read one block from outer relation tables and read one tuple from inner relation table. After iterating all tuples in the inner table, read another block from outer relation table.
 The implenmation follows the pseudocode:
 
 Procedure BNLJ(outer R, inner S):
@@ -58,33 +58,16 @@ DISTINCT: we implemented using a sorting approach mentioned in Project 1, theref
 
 3. External Sort
 
-    The implementation of External sort corresponds to the class in src/operators/ExternalSortOperators. We need to give in total five parameters to construct a 
-    ExternalSortOperator. The first parameter is the current query number which will be used to clear files in the temp directory in the future. The second parameter 
-    is the size of the buffer that is used to sort tuples. In our case, the buffer is an array of Tuples with fixed size (determined by the the user defined buffer size and 
-    the size od each tuple). The third parameter is a list of columns which determines the order of sorting. The forth parameter is the schema of this operator and 
-    the child operator is given by the fifth parameter. 
+The implementation of External sort corresponds to the class in src/operators/ExternalSortOperators. We need to give in total five parameters to construct a ExternalSortOperator. The first parameter is the current query number which will be used to clear files in the temp directory in the future. The second parameter is the size of the buffer that is used to sort tuples. In our case, the buffer is an array of Tuples with fixed size (determined by the the user defined buffer size and the size od each tuple). The third parameter is a list of columns which determines the order of sorting. The forth parameter is the schema of this operator and the child operator is given by the fifth parameter. 
     
-    As for the B-1 way sorting algorithm, there are several passes. In the pass 0, the ExternalSortOperator simply continuously read in tuples from its dhild operator 
-    until the sorting buffer is full. If the reading is terminated because the buffer is full, the read phase will return a state flag '1'; if the reading is terminated because 
-    there is no more tuple that can be read from the child operator, the read phase will return a state flag '0'.During the pass 0, the sort buffer will sort the tuples in 
-    memory, and then write out the sorting results in several files which is named in a format as following "aliase_attributes_passNum_fileNum_queryNum". These 
-    files will be put in a corresponding subdirectory 'temp/external-sort/nameOfExternalSort'. After the pass 0,  the ExternalSortOperator will create at most B-1 
-    tuple readers, to merge at most B-1 sorted files in last pass. Then, the ExternalSortOperator will read tuples from those tuple readers. If the reading is 
-    terminated because the buffer is full, the reading phase will return a state flag '3'; if the reading is terminated because there is no more tuple that can be read 
-    from the child operator, the reading phase will return a state flag '2'. Once the sort buffer is full, the operator will execute a mergesort() method which will merge 
-    the currently sorted B-1 tuple arrays and write them into a file. And the merge process will continue untill all the tuple readers stop returning tuples, which
-    means the a state flag '2' is returned by the reading phase. After the merging is finished, the corresponding files of last pass (files that read by the tuple readers)
-    will be teleted. This iteration will continue until only two files left in the subdirectory (the sorted file and its corresponding human readable file). At last, the 
-    operator will create a tuple reader to read the final sorted file. When the getnextTuple() method is called, this tuple reader will read a tuple from the sorted file.
-    When the reset() method is called, we simply reset this tuple reader.
+As for the B-1 way sorting algorithm, there are several passes. In the pass 0, the ExternalSortOperator simply continuously read in tuples from its dhild operator until the sorting buffer is full. If the reading is terminated because the buffer is full, the read phase will return a state flag '1'; if the reading is terminated because there is no more tuple that can be read from the child operator, the read phase will return a state flag '0'.During the pass 0, the sort buffer will sort the tuples in memory, and then write out the sorting results in several files which is named in a format as following "aliase_attributes_passNum_fileNum_queryNum". These files will be put in a corresponding subdirectory 'temp/external-sort/nameOfExternalSort'. After the pass 0,  the ExternalSortOperator will create at most B-1 tuple readers, to merge at most B-1 sorted files in last pass. Then, the ExternalSortOperator will read tuples from those tuple readers. If the reading is 
+terminated because the buffer is full, the reading phase will return a state flag '3'; if the reading is terminated because there is no more tuple that can be read from the child operator, the reading phase will return a state flag '2'. Once the sort buffer is full, the operator will execute a mergesort() method which will merge the currently sorted B-1 tuple arrays and write them into a file. And the merge process will continue untill all the tuple readers stop returning tuples, which
+means the a state flag '2' is returned by the reading phase. After the merging is finished, the corresponding files of last pass (files that read by the tuple readers) will be teleted. This iteration will continue until only two files left in the subdirectory (the sorted file and its corresponding human readable file). At last, the operator will create a tuple reader to read the final sorted file. When the getnextTuple() method is called, this tuple reader will read a tuple from the sorted file. When the reset() method is called, we simply reset this tuple reader.
 
 
 4. Known bugs
 
-    There are still some bugs in our implementation of ExternalSortOperator. If we used ExternalSortOperator instead of SortOperator in the query plan, several 
-    tuples will be ignored by the operator, which means the output tuples are less than the expected results. We have spent much time on solving this problem, but 
-    at least by the deadline, we are not able to solve it. We think this bug may relate to our merge sorting algorithm, and to be more specific, this bug can be 
-    caused by wrongly updating the sorting buffer pointers. In the next few days, we will continue fixing this bug.
+There are still some bugs in our implementation of ExternalSortOperator. If we used ExternalSortOperator instead of SortOperator in the query plan, several tuples will be ignored by the operator, which means the output tuples are less than the expected results. We have spent much time on solving this problem, but at least by the deadline, we are not able to solve it. We think this bug may relate to our merge sorting algorithm, and to be more specific, this bug can be caused by wrongly updating the sorting buffer pointers. In the next few days, we will continue fixing this bug.
 
 
 
