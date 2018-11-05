@@ -32,11 +32,11 @@ public class ExternalSortOperator extends Operator{
 	private Tuple[] sortBuffer;
 	private static int pageSize = 4096;
 	private int tuplePerPage;
-	private Tuple[] outputPage;
+	//private Tuple[] outputPage;
 	private List<String> attrList; // Records the comparing order
 	private int passNum = 0;
 	private int[] mergePointers; //Records the pointers of merge sort
-	private int outputPointer = 0;
+	//private int outputPointer = 0;
 	
 	/**
 	 * ExternalSortOperator constructor with configurable buffer size B pages,
@@ -57,7 +57,7 @@ public class ExternalSortOperator extends Operator{
 		this.sortBuffer = new Tuple[maxTuple];
 		this.trs = new TupleReader[bufferSize-1];
 		this.trsStates = new boolean[bufferSize-1];
-		this.outputPage = new Tuple[tuplePerPage];
+		//this.outputPage = new Tuple[tuplePerPage];
 		StringBuilder sb = new StringBuilder();
 		sb.append("exSort-");
 		sb.append(op.name);
@@ -106,7 +106,7 @@ public class ExternalSortOperator extends Operator{
 		if (trs[0] == null) {
 			Tuple tuple = this.leftChild.getNextTuple();
 			int i = 0;
-			while(tuple != null && i < sortBuffer.length) {
+			while(tuple != null && i < sortBuffer.length-1) {
 				sortBuffer[i] = tuple;
 				tuple = this.leftChild.getNextTuple();
 				i++;
@@ -115,6 +115,7 @@ public class ExternalSortOperator extends Operator{
 			if (tuple == null) {
 				return 0;
 			}else {
+				sortBuffer[i] = tuple;
 				return 1;
 			}
 		}else {
@@ -123,19 +124,20 @@ public class ExternalSortOperator extends Operator{
 				if (trsStates[i]) {
 					int tupNum = 0;
 					Tuple tuple = trs[i].readNextTuple();
-					while(tuple != null && tupNum < tuplePerPage) {
+					while(tuple != null && tupNum < tuplePerPage-1) {
 						int index = i*tuplePerPage+tupNum;
 						sortBuffer[index] = tuple;
 						tuple = trs[i].readNextTuple();
 						tupNum++;
 						tCount++;
 					}
-					if (tuple == null) trsStates[i] =false;
+					if (tuple == null) trsStates[i] = false;
+					else sortBuffer[i*tuplePerPage+tupNum] = tuple;
 				}
 			}
 				
 			initMergePointers();
-			System.out.println("Load to sort buffer");
+			//System.out.println("Load to sort buffer");
 			if (tCount == 0) return 2;
 			else return 3;
 		}
@@ -182,18 +184,18 @@ public class ExternalSortOperator extends Operator{
 	 * 		   1: output page is full
 	 * 		   -1: tw is null
 	 */
-	private void writeToScratch() throws IOException {
-		int i=0;
-		if (tw!=null) {
-			while(i < outputPage.length && outputPage[i] != null) {
-				tw.writeTuple(outputPage[i]);
-				i++;
-			}
-			Arrays.fill(outputPage, null);
-			outputPointer = 0;
-			
-		}
-	}
+//	private void writeToScratch() throws IOException {
+//		int i=0;
+//		if (tw!=null) {
+//			while(i < outputPage.length && outputPage[i] != null) {
+//				tw.writeTuple(outputPage[i]);
+//				i++;
+//			}
+//			Arrays.fill(outputPage, null);
+//			//outputPointer = 0;
+//			
+//		}
+//	}
 	
 	/**
 	 * Write the output page to scratch file. Refresh the tuple writer, and write by the new
@@ -352,14 +354,23 @@ public class ExternalSortOperator extends Operator{
 			Arrays.sort(sortBuffer, new TupleComparator(this.attrList));
 			String scratchPath = generatePath(fileNum);
 			TupleWriter writer = new TupleWriter(scratchPath);//Needs a null tuple to close
+			//int count = 0;
+			boolean f = true;
 			for(Tuple t: sortBuffer) {
 				writer.writeTuple(t);
-				if(t == null) break;
+				//count++;
+				if(t == null) {
+					f = false;
+					break;
+				}
 			}
-			writer.writeTuple(null);
+			if (f) {
+				writer.writeTuple(null);
+			}
 			fileNum ++;
 		}
 		this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
+		Arrays.sort(this.scratchFiles);
 		passNum = 1;
 		fileNum = 0;
 		while (scratchFiles.length > 2) {
@@ -367,19 +378,13 @@ public class ExternalSortOperator extends Operator{
 			
 			int fileCountsBeforePass = scratchFiles.length;
 			//Execute a pass
+			List<File>deleteFiles = new LinkedList<File>();
 			while(i < fileCountsBeforePass) {
 				//Construct the tuple readers
-				List<File>deleteFiles = new LinkedList<File>();
 				int j = 0;//index of tuple readers
 				while (j < trs.length) {
 					//if (j >= scratchFiles.length) break;
-					String fileName = scratchFiles[i].getName();
-					String[] s  = fileName.split("_");
-					if(s[s.length-1].equals("humanreadable")) {
-						//skip human readable files
-						i++;
-						continue;
-					}
+					String fileName = scratchFiles[i].getName().replace("_humanreadable", "");
 					int filePassNum = getFilePassNum(fileName);
 					if (filePassNum < passNum) {
 						//Delete files of last pass
@@ -391,10 +396,10 @@ public class ExternalSortOperator extends Operator{
 						trsStates[j] = true;
 						j++;
 					}
-					i++;
+					i = i + 2;
 					if (i >= fileCountsBeforePass) break;
 				}
-				i++;
+				//i++;
 				//Execute a run in this pass
 				readState = 3;//reading is not finished
 				
@@ -410,14 +415,15 @@ public class ExternalSortOperator extends Operator{
 					if (readState != 3) tw.writeTuple(null); //close the writer;
 				}
 				fileNum++;
-				//Delete all the files of this last pass
-				for (File f: deleteFiles) {
-					f.delete();
-				}
 				//this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
+			}
+			//Delete all the files of this last pass
+			for (File f: deleteFiles) {
+				f.delete();
 			}
 			passNum++;
 			this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
+			Arrays.sort(this.scratchFiles);
 			
 		}
 		//Arrays.fill(trs, null);
@@ -535,59 +541,59 @@ public class ExternalSortOperator extends Operator{
 	}
 	
 	//Test
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		long[] data1 = {1,4,4,4};
-		long[] data2 = {1,4,3,3};
-		long[] data3 = {2,4,3,1};
-		long[] data4 = {3,5,5,5};
-		long[] data5 = {6,2,5,5};
-		HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
-		schema1.put("S.A", 0);
-		schema1.put("S.B", 1);
-		schema1.put("R.G", 2);
-		schema1.put("R.H", 3);
-		Tuple t1 = new Tuple(data1, schema1);
-		Tuple t2 = new Tuple(data2, schema1);
-		Tuple t3 = new Tuple(data3, schema1);
-		Tuple t4 = new Tuple(data4, schema1);
-		Tuple t5 = new Tuple(data5, schema1);
-		long[] data6 = {1,4,4,4};
-		long[] data7 = {1,4,3,3};
-		long[] data8 = {1,3,3,1};
-		long[] data9 = {3,1,5,5};
-		long[] data10 = {6,2,5,5};
-		//HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
-		Tuple t6 = new Tuple(data1, schema1);
-		Tuple t7 = new Tuple(data2, schema1);
-		Tuple t8 = new Tuple(data3, schema1);
-		Tuple t9 = new Tuple(data4, schema1);
-		Tuple t10 = new Tuple(data5, schema1);
-		Tuple[] arr = {t1, t2, t3, t4, t5, null, t6,t7,t8,t9,t10,null};
-		LinkedList<String> orderList = new LinkedList<String>();
-		orderList.add("S.A");
-		//orderList.add("S.B");
-		//orderList.add("S.A");
-		ExternalSortOperator es = new ExternalSortOperator(orderList);
-		int tp = 6;
-		int[] pointers = {0, tp};
-		Tuple t = es.mergeSort(arr, pointers, tp);
-		while (t!= null) {
-			
-			t.printData();
-			t = es.mergeSort(arr, pointers, tp);
-			
-		}
-//		ScanOperator sc = new ScanOperator("Boats");
-//		List<String> order = new LinkedList<String>();
-//		order.add("Boats.E");
-//		ExternalSortOperator es = new ExternalSortOperator(2, 3, order, sc.schema, sc);
-//		//es.dump();
-//		for (int i = 0; i<100; i++) {
-//			Tuple t = es.getNextTuple();
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//		long[] data1 = {1,4,4,4};
+//		long[] data2 = {1,4,3,3};
+//		long[] data3 = {2,4,3,1};
+//		long[] data4 = {3,5,5,5};
+//		long[] data5 = {6,2,5,5};
+//		HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
+//		schema1.put("S.A", 0);
+//		schema1.put("S.B", 1);
+//		schema1.put("R.G", 2);
+//		schema1.put("R.H", 3);
+//		Tuple t1 = new Tuple(data1, schema1);
+//		Tuple t2 = new Tuple(data2, schema1);
+//		Tuple t3 = new Tuple(data3, schema1);
+//		Tuple t4 = new Tuple(data4, schema1);
+//		Tuple t5 = new Tuple(data5, schema1);
+//		long[] data6 = {1,4,4,4};
+//		long[] data7 = {1,4,3,3};
+//		long[] data8 = {1,3,3,1};
+//		long[] data9 = {3,1,5,5};
+//		long[] data10 = {6,2,5,5};
+//		//HashMap<String, Integer> schema1 = new HashMap<String, Integer>();
+//		Tuple t6 = new Tuple(data1, schema1);
+//		Tuple t7 = new Tuple(data2, schema1);
+//		Tuple t8 = new Tuple(data3, schema1);
+//		Tuple t9 = new Tuple(data4, schema1);
+//		Tuple t10 = new Tuple(data5, schema1);
+//		Tuple[] arr = {t1, t2, t3, t4, t5, null, t6,t7,t8,t9,t10,null};
+//		LinkedList<String> orderList = new LinkedList<String>();
+//		orderList.add("S.A");
+//		//orderList.add("S.B");
+//		//orderList.add("S.A");
+//		ExternalSortOperator es = new ExternalSortOperator(orderList);
+//		int tp = 6;
+//		int[] pointers = {0, tp};
+//		Tuple t = es.mergeSort(arr, pointers, tp);
+//		while (t!= null) {
+//			
 //			t.printData();
+//			t = es.mergeSort(arr, pointers, tp);
+//			
 //		}
-
-	}
+////		ScanOperator sc = new ScanOperator("Boats");
+////		List<String> order = new LinkedList<String>();
+////		order.add("Boats.E");
+////		ExternalSortOperator es = new ExternalSortOperator(2, 3, order, sc.schema, sc);
+////		//es.dump();
+////		for (int i = 0; i<100; i++) {
+////			Tuple t = es.getNextTuple();
+////			t.printData();
+////		}
+//
+//	}
 
 }

@@ -102,10 +102,11 @@ public abstract class Operator {
 		//reset();
 		Tuple tuple = getNextTuple();
 		while (tuple != null) {
-			tuple.printData();
+			//tuple.printData();
 			tuple = getNextTuple();
 		}
 		reset();
+		System.out.println("finishing dumping");
 	}
 	
     /*should override by External Sort Operator and In-Memory Sort Operator */
@@ -150,7 +151,6 @@ public abstract class Operator {
 	 */
 	public void dump(int index) throws IOException {
 		reset();
-		
 		/*construct output path*/
 		StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
 		output.append("/query");	
@@ -162,9 +162,9 @@ public abstract class Operator {
 			
 			if (!write.writeTuple(tuple)) {
 				break;
-			}
-			
+			}	
 		}
+		System.out.println("finish dumping");
 		reset();
 	}
 		

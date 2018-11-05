@@ -1,0 +1,2 @@
+TIME START 1541390581876 
+Read statement: SELECT * FROM Sailors, Reserves, Boats WHERE Sailors.A = Reserves.G AND Reserves.H = Boats.D 
