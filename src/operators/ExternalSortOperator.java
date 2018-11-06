@@ -121,19 +121,21 @@ public class ExternalSortOperator extends Operator{
 		}else {
 			int tCount = 0;
 			for (int i = 0; i < trs.length; i++) {
-				if (trsStates[i]) {
-					int tupNum = 0;
-					Tuple tuple = trs[i].readNextTuple();
-					while(tuple != null && tupNum < tuplePerPage-1) {
-						int index = i*tuplePerPage+tupNum;
-						sortBuffer[index] = tuple;
-						tuple = trs[i].readNextTuple();
-						tupNum++;
-						tCount++;
-					}
-					if (tuple == null) trsStates[i] = false;
-					else sortBuffer[i*tuplePerPage+tupNum] = tuple;
-				}
+//				if (trsStates[i]) {
+//					int tupNum = 0;
+//					Tuple tuple = trs[i].readNextTuple();
+//					while(tuple != null && tupNum < tuplePerPage-1) {
+//						int index = i*tuplePerPage+tupNum;
+//						sortBuffer[index] = tuple;
+//						tuple = trs[i].readNextTuple();
+//						tupNum++;
+//						tCount++;
+//					}
+//					if (tuple == null) trsStates[i] = false;
+//					else sortBuffer[i*tuplePerPage+tupNum] = tuple;
+//				}
+				int readI = loadPage(i);
+				tCount = tCount + readI;
 			}
 				
 			initMergePointers();
@@ -142,6 +144,22 @@ public class ExternalSortOperator extends Operator{
 			else return 3;
 		}
 		
+	}
+	
+	private int loadPage(int i) throws Exception {
+		if (i < trs.length) {
+			int tupNum = 0;
+			Tuple tuple = trs[i].readNextTuple();
+			while(tuple != null && tupNum < tuplePerPage-1) {
+				int index = i*tuplePerPage+tupNum;
+				sortBuffer[index] = tuple;
+				tuple = trs[i].readNextTuple();
+				tupNum++;
+			}
+			if (tupNum == 0) return 0;
+			else return 1;
+		}
+		return 0;
 	}
 	
 	/**
@@ -232,11 +250,14 @@ public class ExternalSortOperator extends Operator{
 	 */
 	public Tuple mergeSort() {
 		TupleComparator tc = new TupleComparator(this.attrList);
+		initMergePointers();
 		int currInd = -1;
 		for (int i = 0; i < mergePointers.length; i++) {
 			if (mergePointers[i] != -1) {
 				currInd = i;
 				break;
+			}else {
+				
 			}
 		}
 		if(currInd != -1 ) {
@@ -269,45 +290,45 @@ public class ExternalSortOperator extends Operator{
 		}
 		
 	}
-	public Tuple mergeSort(Tuple[] t_array, int[] m_pointers, int tPage) {
-		TupleComparator tc = new TupleComparator(this.attrList);
-		int currInd = -1;
-		for (int i = 0; i < m_pointers.length; i++) {
-			if (m_pointers[i] != -1) {
-				currInd = i;
-				break;
-			}
-		}
-		if(currInd != -1 ) {
-			Tuple res = t_array[m_pointers[currInd]];
-			boolean flag = true;
-			while(flag) {
-				flag = false;
-				for (int j = currInd + 1; j < m_pointers.length; j++) {
-					if(m_pointers[j] == -1) continue;
-					Tuple cand = t_array[m_pointers[j]];
-//					if (cand == null) {
-//						mergePointers[j] = -1;
-//						continue;
-//					} 
-					if (tc.compare(cand, res)==-1) {
-						flag = true;
-						res = cand;
-						currInd = j;
-					}
-				}
-			}
-			m_pointers[currInd]++;
-			if(m_pointers[currInd]==(currInd+1)*tPage || t_array[m_pointers[currInd]]==null) {
-				m_pointers[currInd] = -1;
-			}
-			return res;
-			
-		}else {
-			return null;
-		}
-		
-	}
+//	public Tuple mergeSort(Tuple[] t_array, int[] m_pointers, int tPage) {
+//		TupleComparator tc = new TupleComparator(this.attrList);
+//		int currInd = -1;
+//		for (int i = 0; i < m_pointers.length; i++) {
+//			if (m_pointers[i] != -1) {
+//				currInd = i;
+//				break;
+//			}
+//		}
+//		if(currInd != -1 ) {
+//			Tuple res = t_array[m_pointers[currInd]];
+//			boolean flag = true;
+//			while(flag) {
+//				flag = false;
+//				for (int j = currInd + 1; j < m_pointers.length; j++) {
+//					if(m_pointers[j] == -1) continue;
+//					Tuple cand = t_array[m_pointers[j]];
+////					if (cand == null) {
+////						mergePointers[j] = -1;
+////						continue;
+////					} 
+//					if (tc.compare(cand, res)==-1) {
+//						flag = true;
+//						res = cand;
+//						currInd = j;
+//					}
+//				}
+//			}
+//			m_pointers[currInd]++;
+//			if(m_pointers[currInd]==(currInd+1)*tPage || t_array[m_pointers[currInd]]==null) {
+//				m_pointers[currInd] = -1;
+//			}
+//			return res;
+//			
+//		}else {
+//			return null;
+//		}
+//		
+//	}
 	
 	private String generatePath(int fileNum) {
 		StringBuilder sb = new StringBuilder();
@@ -405,14 +426,19 @@ public class ExternalSortOperator extends Operator{
 				
 				String scratchPath = generatePath(fileNum);
 				tw = new TupleWriter(scratchPath);
-				while(readState == 3) {
-					readState = readInBuffer();
-					Tuple tuple = mergeSort();
-					while(tuple != null) {
-						tw.writeTuple(tuple);
-						tuple = mergeSort();
-					}
-					if (readState != 3) tw.writeTuple(null); //close the writer;
+//				while(readState == 3) {
+//					readState = readInBuffer();
+//					Tuple tuple = mergeSort();
+//					while(tuple != null) {
+//						tw.writeTuple(tuple);
+//						tuple = mergeSort();
+//					}
+//					if (readState != 3) tw.writeTuple(null); //close the writer;
+//				}
+				Tuple tuple = mergeSort();
+				while(tuple != null) {
+					tw.writeTuple(tuple);
+					tuple = mergeSort();
 				}
 				fileNum++;
 				//this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
@@ -424,7 +450,7 @@ public class ExternalSortOperator extends Operator{
 			passNum++;
 			this.scratchFiles = tempDir.listFiles((dir, name) -> !name.equals(".DS_Store"));
 			Arrays.sort(this.scratchFiles);
-			
+			fileNum = 0;
 		}
 		//Arrays.fill(trs, null);
 		
@@ -472,8 +498,12 @@ public class ExternalSortOperator extends Operator{
 			if(trs[0] == null || !trs[0].getFileName().equals(fileName) ) {
 				String fileAddress = getFileAddress(fileName);
 				trs[0] = new TupleReader(fileAddress, this.schema);
-			}			
-			return trs[0].readNextTuple();
+			}
+			Tuple tp = trs[0].readNextTuple();
+//			if(tp.getTupleData().equals("104,166,84")) {
+//				System.out.println("1");
+//			}
+			return tp;
 			
 		}catch(Exception e) {
 			System.out.println("Exception occurs in external sort");
@@ -486,15 +516,19 @@ public class ExternalSortOperator extends Operator{
 
 	@Override
 	public void reset() {
-		if (scratchFiles.length != 0) {
-			String fileName = scratchFiles[0].getName();
-			
-			if(!(trs[0] != null && trs[0].getFileName() != fileName)) {
-				String fileAddress = getFileAddress(fileName);
-				trs[0] = new TupleReader(fileAddress, this.schema);
-			}
+		if (trs[0] != null) {
+//			String fileName = scratchFiles[0].getName();
+//			
+//			if(!(trs[0] != null && trs[0].getFileName() != fileName)) {
+//				String fileAddress = getFileAddress(fileName);
+//				trs[0] = new TupleReader(fileAddress, this.schema);
+//			}
 			this.trs[0].reset();
 		}
+	}
+	@Override
+	public void reset(int idx) {
+		this.trs[0].resetFileChannel(idx);
 	}
 	/**
 	 * TupleComparator is used to determine the relative positions of two tuples, based on

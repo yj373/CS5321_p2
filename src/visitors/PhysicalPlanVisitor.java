@@ -29,6 +29,7 @@ import operators.ProjectOperator;
 import operators.SMJoinOperator;
 import operators.ScanOperator;
 import operators.SortOperator;
+import operators.V2ExternalSortOperator;
 import util.GlobalLogger;
 /**
  * Visit the logical plan and construct a physical operator 
@@ -98,6 +99,7 @@ public class PhysicalPlanVisitor {
 	 * left child of the join operator, while the second element is
 	 * the right child.
 	 * @param jnOp: logical join operator
+	 * @throws Exception 
 	 */
 	public void visit(LogicalJoinOperator jnOp) {
 		LogicalOperator op1 = jnOp.getLeftChild();
@@ -134,11 +136,14 @@ public class PhysicalPlanVisitor {
 			}else if(sortType == 1) {
 				if (left != null) {
 					Operator originalLeft = left;
-					left = new ExternalSortOperator(queryNum, exSortBufferSize, join3.getLeftSortColumns(), originalLeft.getSchema(), originalLeft);			                			
+					//left = new ExternalSortOperator(queryNum, exSortBufferSize, join3.getLeftSortColumns(), originalLeft.getSchema(), originalLeft);
+					left = new V2ExternalSortOperator(queryNum, exSortBufferSize, join3.getLeftSortColumns(), originalLeft.getSchema(), originalLeft);
 				}
 				if (right != null) {
 					Operator originalRight = right;
-					right = new ExternalSortOperator(queryNum, exSortBufferSize, join3.getRightSortColumns(), originalRight.getSchema(), originalRight);			
+					//right = new ExternalSortOperator(queryNum, exSortBufferSize, join3.getRightSortColumns(), originalRight.getSchema(), originalRight);
+					right = new V2ExternalSortOperator(queryNum, exSortBufferSize, join3.getRightSortColumns(), originalRight.getSchema(), originalRight);		
+
 				}
 			}
 			join3.setLeftChild(left);
@@ -195,7 +200,8 @@ public class PhysicalPlanVisitor {
 					attributes.add(list.get(i).toString());
 				}
 			}
-			ExternalSortOperator sort2 = new ExternalSortOperator(queryNum, exSortBufferSize, attributes, left.getSchema(), left);
+			V2ExternalSortOperator sort2;
+			sort2 = new V2ExternalSortOperator(queryNum, exSortBufferSize, attributes, left.getSchema(), left);
 			childList.add(sort2);
 			root = sort2;
 			
