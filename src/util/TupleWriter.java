@@ -177,7 +177,7 @@ public class TupleWriter {
 	private void writeReadableTuple(Tuple tuple) throws IOException {
 
 		if (tuple != null) {
-			tuple.printData();
+			//tuple.printData();
 			//Logger.println(tuple.getTupleData().toString());
 			humanbw.write(tuple.getTupleData().toString() + '\n');
 			

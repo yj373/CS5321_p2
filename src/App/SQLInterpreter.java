@@ -55,7 +55,7 @@ public class SQLInterpreter {
 
 			while ((statement = parser.Statement()) != null) {
 
-				/**calculate spend time*/
+				/*calculate spend time*/
 				long startTime=System.currentTimeMillis();    
 				GlobalLogger.getLogger().info("TIME START " + startTime);
 				long endTime = 0;
@@ -68,7 +68,7 @@ public class SQLInterpreter {
 				Select select = (Select) statement;
 				LogicalPlanBuilder lb = new LogicalPlanBuilder(select);
 				lb.buildLogicQueryPlan();
-				PhysicalPlanVisitor pv = new PhysicalPlanVisitor();
+				PhysicalPlanVisitor pv = new PhysicalPlanVisitor(index);
 				try {
 					lb.getRoot().accept(pv);
 					root = pv.getPhysicalRoot();

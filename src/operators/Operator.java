@@ -18,11 +18,15 @@ public abstract class Operator {
 	protected Operator leftChild;
 	protected Operator rightChild;
 	protected Expression exp;
+	protected String name;
 	
 	protected Map<String, Integer> schema;
+	/*
 	// Marker to indicate if we checked the table beneath the operator is empty or not
 	// checkIfEmpty[0] indicates if we checked before;
 	// checkIfEmpty[1] indicates if it is empty
+	 */
+	 
 	private boolean[] checkIfEmpty =  new boolean[2];;
 
 	/**
@@ -58,6 +62,26 @@ public abstract class Operator {
 		this.exp = expression;
 	}
 	
+	/**
+	 * get schema
+	 * set schema
+	 */
+	public Map<String, Integer> getSchema(){
+		return this.schema;
+	}
+	public void setSchema(Map<String, Integer> m) {
+		this.schema = m;
+	}
+	/**
+	 * get operator name
+	 * set operator name
+	 */
+	public String getOpname() {
+		return this.name;
+	}
+	public void setName(String n) {
+		this.name = n;
+	}
 
 	/**
 	 * Return the next next tuple, if there are some available 
@@ -78,10 +102,11 @@ public abstract class Operator {
 		//reset();
 		Tuple tuple = getNextTuple();
 		while (tuple != null) {
-			tuple.printData();
+			//tuple.printData();
 			tuple = getNextTuple();
 		}
 		reset();
+		System.out.println("finishing dumping");
 	}
 	
     /*should override by External Sort Operator and In-Memory Sort Operator */
@@ -126,7 +151,6 @@ public abstract class Operator {
 	 */
 	public void dump(int index) throws IOException {
 		reset();
-		
 		/*construct output path*/
 		StringBuilder output = new StringBuilder(Dynamic_properties.outputPath);
 		output.append("/query");	
@@ -138,9 +162,9 @@ public abstract class Operator {
 			
 			if (!write.writeTuple(tuple)) {
 				break;
-			}
-			
+			}	
 		}
+		System.out.println("finish dumping");
 		reset();
 	}
 		

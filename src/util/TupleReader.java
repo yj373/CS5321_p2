@@ -99,7 +99,7 @@ public class TupleReader {
 		buffer = ByteBuffer.allocate(size);
 
 		/*open file channel*/
-		File tableFile = new File(tableAddress);
+		this.tableFile = new File(tableAddress);
 		try {
 			/*get the channel of source file*/ 
 			fcin = new RandomAccessFile(tableFile, "r").getChannel();
@@ -108,6 +108,12 @@ public class TupleReader {
 			e.printStackTrace();
 			e.getMessage();
 		}		
+	}
+	/**
+	 * get file name
+	 */
+	public String getFileName() {
+		return this.tableFile.getName();
 	}
 
 

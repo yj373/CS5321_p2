@@ -14,6 +14,7 @@ public class Dynamic_properties {
 	public static String inputPath = "src/samples/input";
 	public static String dataPath = inputPath + "/db/data/";
 	public static String queryPath = inputPath + "/queries.sql";
+	public static String configuePath = inputPath + "/plan_builder_config.txt";
 	public static String schemaPath = inputPath + "/db/schema.txt";
 	public static String outputPath = "src/samples/output";
 	public static String tempPath = "src/samples/temp";

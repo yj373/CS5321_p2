@@ -54,6 +54,13 @@ public class BNLJoinOperator extends JoinOperator{
 	public BNLJoinOperator(Operator op1, Operator op2, Expression expression, int bufferPage) {
 
 		super(op1, op2, expression);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("bnlj-");
+		sb.append(op1.name);
+		sb.append("-");
+		sb.append(op2.name);
+		name = sb.toString();
 
 		/*calculate the number of tuples in this buffer and prepare buffer*/
 		int numberTuples = (int)(bufferPage * size)/(op1.schema.size() *4);

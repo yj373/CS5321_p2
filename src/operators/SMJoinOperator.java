@@ -29,6 +29,12 @@ public class SMJoinOperator extends JoinOperator{
 	 */
 	public SMJoinOperator(Operator op1, Operator op2, Expression expression) {
 		super(op1, op2, expression);
+		StringBuilder sb = new StringBuilder();
+		sb.append("smj-");
+		sb.append(op1.name);
+		sb.append("-");
+		sb.append(op2.name);
+		name = sb.toString();
 		if (exp != null) {
 			LocateExpressionVisitor locator = new LocateExpressionVisitor(op1.schema, op2.schema);
 			exp.accept(locator);
@@ -37,12 +43,12 @@ public class SMJoinOperator extends JoinOperator{
 			
 			// Only when join condition exp is not null will we set 
 			// the child to be in-mem-sort operator
-			setSortOperator();
+			//setSortOperator();
 		}
 	}
 
-	// Set the sortOperator according to the config file;
-	// Use in-mem-sort for current process.
+	/* Set the sortOperator according to the config file;*/
+	/* Use in-mem-sort for current process.*/
 	private void setSortOperator() {
 		if (leftChild != null) {
 			Operator originalLeft = leftChild;
@@ -129,10 +135,17 @@ public class SMJoinOperator extends JoinOperator{
 
 	}
 	
-	// DIFFERENT from the compare function in sortOperator, in this function we compare
-	// two tuples from two tables with different schemas.
-	// o1: must be the tuple from LEFT table;
-	// o2: must be the tuple from RIGHT table;
+	
+	/**
+	 * DIFFERENT from the compare function in sortOperator, in this function we compare
+	 * two tuples from two tables with different schemas.
+	 * o1: must be the tuple from LEFT table;
+	 * o2: must be the tuple from RIGHT table;
+	 * 
+	 * @param o1
+	 * @param o2
+	 * @return int
+	 */
 	private int compareBtwnTable(Tuple o1, Tuple o2) {
 		if (leftSortColumns != null && rightSortColumns != null) {
 			for (int i = 0; i < leftSortColumns.size(); i++) {
@@ -152,5 +165,12 @@ public class SMJoinOperator extends JoinOperator{
 		 */
 		return 0;
 	}
+	public List<String> getLeftSortColumns(){
+		return this.leftSortColumns;
+	}
+	public List<String> getRightSortColumns(){
+		return this.rightSortColumns;
+	}
+	
 
 }
