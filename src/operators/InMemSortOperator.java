@@ -8,6 +8,17 @@ import data.Tuple;
 import util.TupleReader;
 import util.TupleWriter;
 
+/**
+ * This class is for the in memory sort before the sort-merge Join Operations.
+ * 
+ * Although all data are sorted in memory, it still writes all sorted data to 
+ * the temp/sorted directory such that the SMJ Operator will reset every state by
+ * going back to the file position, and thus avoiding the unbounded state of SMJ
+ * operator.
+ * 
+ * @author Ruoxuan Xu
+ *
+ */
 public class InMemSortOperator extends Operator{
 	/* the priority list of columns to be sorted. eg [S.A, S.B, S.C] */
     private List<String> sortColumns;

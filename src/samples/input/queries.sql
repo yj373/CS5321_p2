@@ -1,1 +1,2 @@
-SELECT DISTINCT * FROM Sailors S, Reserves R, Boats B WHERE S.A = R.G AND R.H = B.D ORDER BY S.C;
+SELECT * FROM Sailors S WHERE S.A >= 356;
+SELECT * FROM Boats WHERE Boats.E >= 125;

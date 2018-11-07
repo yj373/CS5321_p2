@@ -1,0 +1,8 @@
+TIME START 1541614422016 
+Read statement: SELECT * FROM Sailors AS S WHERE S.A >= 356 
+end 
+time spent： 536ms 
+TIME START 1541614422575 
+Read statement: SELECT * FROM Boats WHERE Boats.E >= 125 
+end 
+time spent： 135ms 
