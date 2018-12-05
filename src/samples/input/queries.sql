@@ -1,2 +1,1 @@
-SELECT * FROM Sailors S WHERE S.A >= 356;
-SELECT * FROM Boats WHERE Boats.E >= 125;
+SELECT * FROM Sailors S1, Sailors S2 WHERE S1.A < S2.A;
